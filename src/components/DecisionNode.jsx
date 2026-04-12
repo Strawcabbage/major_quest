@@ -42,33 +42,33 @@ export default function DecisionNode() {
   if (!node) return null
 
   return (
-    <div className="flex flex-col gap-6 max-w-xl pixel-ui w-full">
+    <div className="flex flex-col gap-6 max-w-3xl pixel-ui w-full">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-[8px] font-bold uppercase tracking-widest text-amber-200 bg-amber-950/50 border border-amber-800/60 px-2 py-1">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-amber-200 bg-amber-950/50 border border-amber-800/60 px-3 py-1.5">
           {node.phase}
         </span>
-        <span className="text-[8px] text-stone-500">Year {node.year}</span>
+        <span className="text-[10px] text-stone-500">Year {node.year}</span>
       </div>
 
-      <div className="min-h-[72px] pixel-panel p-4">
+      <div className="min-h-[80px] pixel-panel p-5">
         {loadingAI ? (
-          <div className="flex items-center gap-2 text-stone-500 text-[9px]">
+          <div className="flex items-center gap-2 text-stone-500 text-xs">
             <span className="animate-pulse">▪</span>
             <span>Generating your story…</span>
           </div>
         ) : scenarioText ? (
           <>
-            <h2 className="text-amber-100 font-bold text-[10px] sm:text-xs mb-2 leading-snug">
+            <h2 className="text-amber-100 font-bold text-xs sm:text-sm mb-3 leading-snug">
               {scenarioText.title}
             </h2>
-            <p className="text-stone-300 text-[9px] sm:text-[10px] leading-relaxed">{scenarioText.story}</p>
+            <p className="text-stone-300 text-[10px] sm:text-xs leading-relaxed">{scenarioText.story}</p>
           </>
         ) : (
-          <p className="text-stone-500 italic text-[9px]">{node.ai_context}</p>
+          <p className="text-stone-500 italic text-xs">{node.ai_context}</p>
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-3">
         {node.options.map((option) => {
           const wealthDelta = option.impact.bank_delta
           const happinessDelta = option.impact.happiness_delta
@@ -80,8 +80,8 @@ export default function DecisionNode() {
               disabled={loadingAI || choosing}
               className="pixel-list-item text-left disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <p className="text-amber-50 font-semibold text-[10px] mb-1">{option.label}</p>
-              <div className="flex flex-wrap gap-2 text-[8px]">
+              <p className="text-amber-50 font-semibold text-xs mb-2">{option.label}</p>
+              <div className="flex flex-wrap gap-3 text-[10px]">
                 <span className={wealthDelta >= 0 ? 'text-emerald-400' : 'text-red-400'}>
                   {wealthDelta >= 0 ? '+' : ''}
                   {new Intl.NumberFormat('en-US', {

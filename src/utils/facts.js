@@ -56,17 +56,19 @@ function benchmarkForCip(cipCode) {
 
 export function buildSchoolFactLines(school) {
   const lines = []
-  if (school?.name) lines.push(`Institution: ${school.name}`)
-  if (school?.city && school?.state) lines.push(`Location: ${school.city}, ${school.state}`)
+  lines.push({ section: 'School' })
+  if (school?.name) lines.push({ label: 'Institution', value: school.name })
+  if (school?.city && school?.state) lines.push({ label: 'Location', value: `${school.city}, ${school.state}` })
+  lines.push({ section: 'Admissions & Cost' })
   if (school?.admissionRate != null) {
-    lines.push(`Reported admission rate: ${formatPct01(school.admissionRate)}`)
+    lines.push({ label: 'Admission rate', value: formatPct01(school.admissionRate) })
   } else {
-    lines.push('Admission rate: not reported for this school in the dataset.')
+    lines.push({ label: 'Admission rate', value: 'Not reported for this school' })
   }
   if (school?.avgNetPrice != null) {
-    lines.push(`Average annual net price (overall): ${formatUsd(school.avgNetPrice)}`)
+    lines.push({ label: 'Avg. net price / yr', value: formatUsd(school.avgNetPrice) })
   } else {
-    lines.push('Average net price: not reported — major costs may use national defaults.')
+    lines.push({ label: 'Avg. net price', value: 'Not reported — costs may use national defaults' })
   }
   return {
     title: 'Campus snapshot',
@@ -86,8 +88,11 @@ export function mergeProgramFactWithEnrichment(base, { extraLines = [], extraFoo
 
 export function buildProgramFactLines(program, majorTitle) {
   const lines = []
-  lines.push(`Field: ${program?.title ?? majorTitle ?? 'Selected program'}`)
-  if (program?.cipCode) lines.push(`CIP code: ${program.cipCode}`)
+  lines.push({ section: 'Program' })
+  lines.push({ label: 'Field', value: program?.title ?? majorTitle ?? 'Selected program' })
+  if (program?.cipCode) lines.push({ label: 'CIP code', value: program.cipCode })
+
+  lines.push({ section: 'Outcomes' })
   if (program?.earningsMedian != null) {
     const src =
       program.earningsMedian2Yr != null
@@ -95,17 +100,17 @@ export function buildProgramFactLines(program, majorTitle) {
         : program.earningsMedian1Yr != null
           ? '1 yr after completion'
           : 'reported cohort'
-    lines.push(`Median earnings (${src}, where reported): ${formatUsd(program.earningsMedian)}`)
+    lines.push({ label: `Median earnings (${src})`, value: formatUsd(program.earningsMedian) })
   } else {
-    lines.push('Program-level median earnings: not reported — using major default.')
+    lines.push({ label: 'Median earnings', value: 'Not reported — using major default' })
   }
   if (program?.debtMedian != null) {
-    lines.push(`Typical cumulative debt (where reported): ${formatUsd(program.debtMedian)}`)
+    lines.push({ label: 'Typical cumulative debt', value: formatUsd(program.debtMedian) })
   } else {
-    lines.push('Program-level debt: not reported — debt may use net-price estimate or defaults.')
+    lines.push({ label: 'Typical debt', value: 'Not reported — using net-price estimate or defaults' })
   }
   if (program?.completionRate != null) {
-    lines.push(`Completion rate (4-yr, 150% time, where reported): ${formatPct01(program.completionRate)}`)
+    lines.push({ label: 'Completion rate (4-yr, 150% time)', value: formatPct01(program.completionRate) })
   }
 
   const bench = program?.cipCode ? benchmarkForCip(program.cipCode) : null
@@ -113,12 +118,13 @@ export function buildProgramFactLines(program, majorTitle) {
     const diff = program.earningsMedian - bench.medianEarnings
     const pct = bench.medianEarnings ? Math.round((diff / bench.medianEarnings) * 100) : null
     if (pct != null) {
-      lines.push(
-        `vs national median earnings for this field (~${formatUsd(bench.medianEarnings)}): ${diff >= 0 ? '+' : ''}${pct}%`,
-      )
+      lines.push({
+        label: 'vs. national median',
+        value: `${diff >= 0 ? '+' : ''}${pct}% (national ~${formatUsd(bench.medianEarnings)})`,
+      })
     }
   } else if (bench?.medianEarnings) {
-    lines.push(`National median earnings for this field (approx.): ${formatUsd(bench.medianEarnings)}`)
+    lines.push({ label: 'National median (approx.)', value: formatUsd(bench.medianEarnings) })
   }
 
   return {
@@ -130,10 +136,12 @@ export function buildProgramFactLines(program, majorTitle) {
 
 export function buildFinancingFactLines(financingId, statsBefore, statsAfter, financingLabel) {
   const lines = [
-    `Plan: ${financingLabel}`,
-    `Starting debt before plan: ${formatUsd(statsBefore.debt)} → after: ${formatUsd(statsAfter.debt)}`,
-    `Liquid savings: ${formatUsd(statsBefore.bank)} → ${formatUsd(statsAfter.bank)}`,
-    `Wellbeing (game stat): ${statsBefore.happiness} → ${statsAfter.happiness}`,
+    { section: 'Selected Plan' },
+    { label: 'Option', value: financingLabel },
+    { section: 'Impact' },
+    { label: 'Debt', value: `${formatUsd(statsBefore.debt)} → ${formatUsd(statsAfter.debt)}` },
+    { label: 'Liquid savings', value: `${formatUsd(statsBefore.bank)} → ${formatUsd(statsAfter.bank)}` },
+    { label: 'Wellbeing', value: `${statsBefore.happiness} → ${statsAfter.happiness}` },
   ]
   return {
     title: 'Financing impact',

@@ -53,19 +53,19 @@
   }
 
   .pixel-dialog-header {
-    @apply px-4 py-3 border-b-2 border-amber-900/60 bg-amber-950/40;
+    @apply px-6 py-5 border-b-2 border-amber-900/60 bg-amber-950/40;
   }
 
   .pixel-dialog-body {
-    @apply px-4 py-4;
+    @apply px-6 py-6;
   }
 
   .pixel-dialog-footer {
-    @apply px-4 py-3 border-t-2 border-stone-800 flex justify-end;
+    @apply px-6 py-4 border-t-2 border-stone-800 flex justify-end;
   }
 
   .pixel-input {
-    @apply bg-stone-950 border-2 border-amber-900/60 text-amber-50 placeholder:text-stone-600 outline-none rounded-none px-3 py-2 text-[10px];
+    @apply bg-stone-950 border-2 border-amber-900/60 text-amber-50 placeholder:text-stone-600 outline-none rounded-none px-3 py-2.5 text-xs;
     box-shadow: inset 0 0 0 1px #292524;
   }
 
@@ -74,21 +74,21 @@
   }
 
   .pixel-btn-primary {
-    @apply bg-amber-700 hover:bg-amber-600 active:translate-y-px text-stone-950 font-bold text-[9px] sm:text-[10px] uppercase tracking-wide py-3 px-4 border-2 border-amber-950 cursor-pointer;
+    @apply bg-amber-700 hover:bg-amber-600 active:translate-y-px text-stone-950 font-bold text-xs sm:text-[11px] uppercase tracking-wide py-3.5 px-5 border-2 border-amber-950 cursor-pointer;
     box-shadow: 4px 4px 0 #1c1917;
   }
 
   .pixel-btn-secondary {
-    @apply bg-stone-800 hover:bg-stone-700 text-amber-100 font-bold text-[9px] sm:text-[10px] uppercase tracking-wide py-3 px-4 border-2 border-stone-600 cursor-pointer;
+    @apply bg-stone-800 hover:bg-stone-700 text-amber-100 font-bold text-xs sm:text-[11px] uppercase tracking-wide py-3.5 px-5 border-2 border-stone-600 cursor-pointer;
     box-shadow: 4px 4px 0 #1c1917;
   }
 
   .pixel-btn-ghost {
-    @apply text-amber-600/90 hover:text-amber-400 text-[9px] uppercase tracking-wide cursor-pointer bg-transparent border-0;
+    @apply text-amber-600/90 hover:text-amber-400 text-xs uppercase tracking-wide cursor-pointer bg-transparent border-0;
   }
 
   .pixel-list-item {
-    @apply bg-stone-900 border-2 border-stone-700 hover:border-amber-700/70 px-3 py-3 transition-colors cursor-pointer text-left;
+    @apply bg-stone-900 border-2 border-stone-700 hover:border-amber-700/70 px-4 py-4 transition-colors cursor-pointer text-left;
     box-shadow: 3px 3px 0 #0c0a09;
   }
 

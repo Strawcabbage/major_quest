@@ -80,7 +80,7 @@ export default function MajorPicker() {
               title: base.title,
               lines: [...base.lines, ...(parsed.lines ?? [])],
               footnote: [base.footnote, parsed.footnote].filter(Boolean).join(' '),
-              afterClose: 'career_path',
+              afterClose: 'career_path', backPhase: 'major',
             })
             return
           }
@@ -129,23 +129,23 @@ export default function MajorPicker() {
         }
       }
 
-      openFact({ ...merged, afterClose: 'career_path' })
+      openFact({ ...merged, afterClose: 'career_path', backPhase: 'major' })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not load extra context.')
-      openFact({ ...base, afterClose: 'career_path' })
+      openFact({ ...base, afterClose: 'career_path', backPhase: 'major' })
     } finally {
       setBusy(false)
     }
   }
 
   return (
-    <div className="flex flex-col min-h-full gap-4 pixel-ui px-2 py-4 max-w-xl mx-auto w-full">
+    <div className="flex flex-col min-h-full gap-5 pixel-ui px-4 py-6 max-w-3xl mx-auto w-full">
       <div>
-        <button type="button" className="pixel-btn-ghost text-[8px] mb-3" onClick={() => goPhase('school')}>
+        <button type="button" className="pixel-btn-ghost mb-4" onClick={() => goPhase('school')}>
           ← Back
         </button>
-        <h1 className="text-sm font-bold text-amber-100 uppercase tracking-wider">Choose your major</h1>
-        <p className="text-[9px] text-stone-500 mt-1">
+        <h1 className="text-base font-bold text-amber-100 uppercase tracking-wider">Choose your major</h1>
+        <p className="text-xs text-stone-500 mt-2">
           {school?.name ? (
             <>
               Fields of study at <span className="text-stone-300">{school.name}</span> from College Scorecard (merged by
@@ -181,15 +181,15 @@ export default function MajorPicker() {
             ))}
           </div>
           {capped && (
-            <p className="text-[8px] text-amber-600/90">
+            <p className="text-[10px] text-amber-600/90">
               Showing top {DISPLAY_CAP} by data completeness & earnings; refine search to find more.
             </p>
           )}
         </div>
       )}
 
-      {error && <p className="text-[9px] text-amber-600/90">{error}</p>}
-      {busy && <p className="text-[9px] text-stone-500 animate-pulse">Loading BLS + O*NET context…</p>}
+      {error && <p className="text-xs text-amber-600/90">{error}</p>}
+      {busy && <p className="text-xs text-stone-500 animate-pulse">Loading BLS + O*NET context…</p>}
 
       {displayList.length > 0 ? (
         <ul className="space-y-2 max-h-[55vh] overflow-y-auto pr-1">
@@ -206,13 +206,13 @@ export default function MajorPicker() {
                   disabled={busy}
                   onClick={() => choose(p, major)}
                 >
-                  <span className="block text-[10px] text-amber-100 font-semibold">{p.title}</span>
-                  <span className="block text-[8px] text-stone-500 mt-0.5">
+                  <span className="block text-[11px] text-amber-100 font-semibold">{p.title}</span>
+                  <span className="block text-[10px] text-stone-500 mt-1">
                     {cipUiCategory(p.cipCode)} · CIP {p.cipCode}
                     {limited ? ' · Limited data' : ''}
                     {isGeneric ? ' · Explorer track' : ''}
                   </span>
-                  <span className="block text-[7px] text-stone-600 mt-1 font-mono leading-relaxed">
+                  <span className="block text-[9px] text-stone-600 mt-1.5 font-mono leading-relaxed">
                     Sim: {storyTrackLabel(trackId)} · Earn {p.earningsMedian != null ? formatUsd(p.earningsMedian) : '—'} ·
                     Debt {p.debtMedian != null ? formatUsd(p.debtMedian) : '—'} · Complete{' '}
                     {p.completionRate != null ? `${Math.round(p.completionRate * 100)}%` : '—'}
@@ -224,7 +224,7 @@ export default function MajorPicker() {
         </ul>
       ) : (
         <div className="pixel-panel p-3 text-[9px] text-stone-400 space-y-2">
-          <p>
+          <p className="text-xs">
             {allPrograms.length > 0
               ? 'No programs match this filter — try another category or search.'
               : 'No Scorecard programs returned for this school. Pick a simulation track with national-style defaults:'}
@@ -238,10 +238,10 @@ export default function MajorPicker() {
                 disabled={busy}
                 onClick={() => choose(fallbackProgram(major), major)}
               >
-                <span className="text-[10px] text-amber-100 font-semibold">
+                <span className="text-[11px] text-amber-100 font-semibold">
                   {major.emoji} {major.title}
                 </span>
-                <span className="block text-[8px] text-stone-500">Uses major defaults + your school net price if available</span>
+                <span className="block text-[10px] text-stone-500 mt-1">Uses major defaults + your school net price if available</span>
               </button>
             ))}
           </div>

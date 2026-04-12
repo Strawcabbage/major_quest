@@ -53,7 +53,7 @@ export default function SchoolPicker() {
       const school = full ?? selected
       setSchool(school)
       const fact = buildSchoolFactLines(school)
-      openFact({ ...fact, afterClose: 'major' })
+      openFact({ ...fact, afterClose: 'major', backPhase: 'school' })
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Could not load school details')
     } finally {
@@ -62,13 +62,13 @@ export default function SchoolPicker() {
   }
 
   return (
-    <div className="flex flex-col min-h-full gap-4 pixel-ui px-2 py-4 max-w-xl mx-auto w-full">
+    <div className="flex flex-col min-h-full gap-5 pixel-ui px-4 py-6 max-w-3xl mx-auto w-full">
       <div>
-        <button type="button" className="pixel-btn-ghost text-[8px] mb-3" onClick={() => goPhase('character')}>
+        <button type="button" className="pixel-btn-ghost mb-4" onClick={() => goPhase('character')}>
           ← Back
         </button>
-        <h1 className="text-sm font-bold text-amber-100 uppercase tracking-wider">Choose your university</h1>
-        <p className="text-[9px] text-stone-500 mt-1">Search the College Scorecard. Pick a school to see real cost and admissions hints.</p>
+        <h1 className="text-base font-bold text-amber-100 uppercase tracking-wider">Choose your university</h1>
+        <p className="text-xs text-stone-500 mt-2">Search the College Scorecard. Pick a school to see real cost and admissions hints.</p>
       </div>
 
       <input
@@ -79,20 +79,20 @@ export default function SchoolPicker() {
         className="pixel-input w-full"
       />
 
-      {error && <p className="text-[9px] text-red-400">{error}</p>}
+      {error && <p className="text-xs text-red-400">{error}</p>}
       {debounced.length < 2 && (
-        <p className="text-[9px] text-stone-500">Type at least 2 letters to search the Scorecard.</p>
+        <p className="text-xs text-stone-500">Type at least 2 letters to search the Scorecard.</p>
       )}
       {loading && debounced.length >= 2 && (
-        <p className="text-[9px] text-stone-500 animate-pulse">Searching…</p>
+        <p className="text-xs text-stone-500 animate-pulse">Searching…</p>
       )}
       {!loading && debounced.length >= 2 && (
-        <p className="text-[8px] text-stone-600">
+        <p className="text-[10px] text-stone-600">
           {total.toLocaleString()} schools match this query (showing first {results.length}).
         </p>
       )}
 
-      <ul className="space-y-2 max-h-[40vh] overflow-y-auto pr-1">
+      <ul className="space-y-2 max-h-[45vh] overflow-y-auto pr-1">
         {results.map((s) => (
           <li key={s.id}>
             <button
@@ -100,8 +100,8 @@ export default function SchoolPicker() {
               onClick={() => setSelected(s)}
               className={`pixel-list-item w-full text-left ${selected?.id === s.id ? 'pixel-list-item--active' : ''}`}
             >
-              <span className="block text-[10px] text-amber-100 font-semibold">{s.name}</span>
-              <span className="block text-[8px] text-stone-500">
+              <span className="block text-[11px] text-amber-100 font-semibold">{s.name}</span>
+              <span className="block text-[10px] text-stone-500 mt-1">
                 {s.city}, {s.state}
                 {s.avgNetPrice != null && (
                   <> · Net price ~{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(s.avgNetPrice)}</>

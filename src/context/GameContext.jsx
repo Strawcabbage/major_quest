@@ -128,10 +128,14 @@ function gameReducer(state, action) {
           title: p.title,
           lines: p.lines,
           footnote: p.footnote,
+          backPhase: p.backPhase ?? null,
         },
         factAfterClose: p.afterClose ?? null,
       }
     }
+
+    case 'CLOSE_FACT_BACK':
+      return { ...state, factModal: null, factAfterClose: null, phase: action.phase }
 
     case 'CLOSE_FACT': {
       const dest = state.factAfterClose
@@ -266,6 +270,10 @@ export function GameProvider({ children }) {
     dispatch({ type: 'CLOSE_FACT' })
   }, [])
 
+  const backFact = useCallback((phase) => {
+    dispatch({ type: 'CLOSE_FACT_BACK', phase })
+  }, [])
+
   const setFinancingStart = useCallback((financingId) => {
     dispatch({ type: 'SET_FINANCING_START', financingId })
   }, [])
@@ -307,6 +315,7 @@ export function GameProvider({ children }) {
         startPlayingAfterOutlook,
         openFact,
         closeFact,
+        backFact,
         setFinancingStart,
         selectMajor,
         makeChoice,

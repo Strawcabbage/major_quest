@@ -57,7 +57,7 @@ export default function CareerPathPicker() {
 
   if (!program || !stats) {
     return (
-      <div className="pixel-ui p-4 text-[9px] text-stone-500">
+      <div className="pixel-ui p-4 text-xs text-stone-500">
         Choose a program first.{' '}
         <button type="button" className="pixel-btn-ghost" onClick={() => goPhase('major')}>
           Back
@@ -83,19 +83,19 @@ export default function CareerPathPicker() {
   }
 
   return (
-    <div className="flex flex-col min-h-full gap-4 pixel-ui px-2 py-4 max-w-xl mx-auto w-full">
+    <div className="flex flex-col min-h-full gap-5 pixel-ui px-4 py-6 max-w-3xl mx-auto w-full">
       <div>
-        <button type="button" className="pixel-btn-ghost text-[8px] mb-3" onClick={() => goPhase('major')}>
+        <button type="button" className="pixel-btn-ghost mb-4" onClick={() => goPhase('major')}>
           ← Back
         </button>
-        <h1 className="text-sm font-bold text-amber-100 uppercase tracking-wider">Career path</h1>
-        <p className="text-[9px] text-stone-500 mt-1">
+        <h1 className="text-base font-bold text-amber-100 uppercase tracking-wider">Career path</h1>
+        <p className="text-xs text-stone-500 mt-2">
           Example occupations for <span className="text-stone-300">{program.title}</span>
           {enrichment ? '' : ' — limited national context for this CIP; using generic paths.'}
         </p>
       </div>
 
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {careers.map((c) => {
           const selected = (picked ?? careers[0])?.id === c.id
           return (
@@ -105,10 +105,10 @@ export default function CareerPathPicker() {
                 className={`pixel-list-item w-full text-left ${selected ? 'ring-1 ring-amber-500/60' : ''}`}
                 onClick={() => setPicked(c)}
               >
-                <span className="block text-[10px] text-amber-100 font-semibold">{c.title}</span>
-                {c.soc && <span className="block text-[7px] text-stone-600 font-mono">SOC {c.soc}</span>}
-                <span className="block text-[8px] text-stone-500 mt-0.5">{c.teaser}</span>
-                <span className="block text-[8px] text-stone-400 mt-1">
+                <span className="block text-[11px] text-amber-100 font-semibold">{c.title}</span>
+                {c.soc && <span className="block text-[9px] text-stone-600 font-mono mt-0.5">SOC {c.soc}</span>}
+                <span className="block text-[10px] text-stone-500 mt-1">{c.teaser}</span>
+                <span className="block text-[10px] text-stone-400 mt-1.5">
                   {c.medianWage != null ? `National example wage: ${formatUsd(c.medianWage)} · ` : ''}
                   ~{c.growthPct}% growth (illustrative)
                   {c.bright != null ? ` · Bright outlook: ${c.bright ? 'yes' : 'mixed'}` : ''}
