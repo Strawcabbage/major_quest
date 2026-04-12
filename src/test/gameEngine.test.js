@@ -2,8 +2,15 @@ import { describe, it, expect } from 'vitest'
 import {
   applyChoice,
   applyAnnualDebtInterest,
+  applyFinancing,
   computeNetWorth,
+  estimateDebtPayoffMonths,
   isGameOver,
+  applyCityToStats,
+  applyCareerPathNudge,
+  salaryToLivingWageRatio,
+  computeFiveYearOutlook,
+  fsaStaticFactSnippet,
 } from '../engine/gameEngine'
 
 describe('applyChoice', () => {
@@ -58,5 +65,71 @@ describe('isGameOver', () => {
   })
   it('returns false when nodes remain', () => {
     expect(isGameOver(2, 4)).toBe(false)
+  })
+})
+
+describe('applyFinancing', () => {
+  it('scales debt and adjusts bank for scholarships path', () => {
+    const state = { salary: 60000, bank: 2000, debt: 40000, happiness: 70 }
+    const next = applyFinancing(state, 'scholarships')
+    expect(next.debt).toBe(Math.round(40000 * 0.55))
+    expect(next.bank).toBe(4500)
+    expect(next.happiness).toBe(78)
+  })
+})
+
+describe('estimateDebtPayoffMonths', () => {
+  it('returns 0 when debt is paid', () => {
+    expect(estimateDebtPayoffMonths({ debt: 0, annualSalary: 50000 })).toBe(0)
+  })
+  it('returns a positive month count for typical inputs', () => {
+    const m = estimateDebtPayoffMonths({ debt: 30000, annualSalary: 60000 })
+    expect(m).toBeGreaterThan(0)
+    expect(m).toBeLessThan(400)
+  })
+})
+
+describe('applyCityToStats', () => {
+  it('scales salary and adjusts happiness', () => {
+    const s = { salary: 100000, bank: 2000, debt: 30000, happiness: 70 }
+    const next = applyCityToStats(s, { regionalSalaryMultiplier: 1.1, happinessDelta: -2 })
+    expect(next.salary).toBe(110000)
+    expect(next.happiness).toBe(68)
+  })
+})
+
+describe('applyCareerPathNudge', () => {
+  it('does nothing without median wage', () => {
+    const s = { salary: 50000, bank: 0, debt: 0, happiness: 50 }
+    expect(applyCareerPathNudge(s, {}).salary).toBe(50000)
+  })
+  it('raises salary toward example wage', () => {
+    const s = { salary: 40000, bank: 0, debt: 0, happiness: 50 }
+    const next = applyCareerPathNudge(s, { medianWage: 100000 })
+    expect(next.salary).toBeGreaterThan(40000)
+  })
+})
+
+describe('salaryToLivingWageRatio', () => {
+  it('returns salary divided by living wage', () => {
+    expect(salaryToLivingWageRatio(90000, 45000)).toBe(2)
+  })
+})
+
+describe('computeFiveYearOutlook', () => {
+  it('returns six rows (years 0–5)', () => {
+    const o = computeFiveYearOutlook({ salary: 60000, debt: 20000, bank: 5000, happiness: 70 }, { annualGrowthPct: 0.03 })
+    expect(o.years).toHaveLength(6)
+    expect(o.years[5].salary).toBeGreaterThan(o.years[0].salary)
+  })
+})
+
+describe('fsaStaticFactSnippet', () => {
+  it('returns lines for known unit ids', () => {
+    const sn = fsaStaticFactSnippet('166027')
+    expect(sn?.lines?.length).toBeGreaterThan(0)
+  })
+  it('returns null for unknown school', () => {
+    expect(fsaStaticFactSnippet('000000')).toBeNull()
   })
 })

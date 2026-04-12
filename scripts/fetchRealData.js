@@ -108,9 +108,18 @@ async function main() {
   console.log('🎓  College Scorecard Data Enrichment\n')
 
   const gameDataPath = join(__dirname, '../src/data/gameData.json')
+  const benchmarksPath = join(__dirname, '../src/data/benchmarks.json')
   const gameData = JSON.parse(readFileSync(gameDataPath, 'utf-8'))
 
+  let existingBenchmarks = { byCip: {} }
+  try {
+    existingBenchmarks = JSON.parse(readFileSync(benchmarksPath, 'utf-8'))
+  } catch {
+    /* first run */
+  }
+
   const updates = {}
+  const benchmarksByCip = { ...(existingBenchmarks.byCip ?? {}) }
 
   for (const { major_id, cipCode, label } of MAJORS) {
     console.log(`📊  ${label} (${major_id})`)
@@ -130,6 +139,11 @@ async function main() {
     updates[major_id] = {
       salary: medianEarnings,
       debt: estimatedDebt,
+    }
+
+    benchmarksByCip[cipCode] = {
+      medianEarnings,
+      medianDebt: estimatedDebt,
     }
 
     console.log(`  ✅  Median 2yr earnings:  $${medianEarnings.toLocaleString()}`)
@@ -158,6 +172,12 @@ async function main() {
   } else {
     console.log('\n⚠️  No updates applied — gameData.json unchanged.')
   }
+
+  writeFileSync(
+    benchmarksPath,
+    JSON.stringify({ byCip: benchmarksByCip }, null, 2) + '\n',
+  )
+  console.log(`\n✅  benchmarks.json written for national / CIP comparisons (${Object.keys(benchmarksByCip).length} codes).`)
 }
 
 main().catch((err) => {

@@ -1,4 +1,81 @@
+import fsaSchoolHints from '../data/fsaSchoolHints.json'
+
 const DEBT_INTEREST_RATE = 0.06
+
+/** Financing packages applied after initial stats are built from Scorecard + major defaults */
+export const FINANCING_OPTIONS = [
+  {
+    id: 'scholarships',
+    label: 'Scholarships & grants first',
+    blurb: 'Stack merit aid and Pell-style support; borrow only a small gap.',
+    debtMultiplier: 0.55,
+    bankDelta: 2500,
+    happinessDelta: 8,
+  },
+  {
+    id: 'mixed',
+    label: 'Balanced aid + loans',
+    blurb: 'Typical mix of federal loans and some family contribution.',
+    debtMultiplier: 0.85,
+    bankDelta: 1500,
+    happinessDelta: 2,
+  },
+  {
+    id: 'work_study',
+    label: 'Work part-time through school',
+    blurb: 'Earn while you learn; less borrowing but tighter schedules.',
+    debtMultiplier: 0.92,
+    bankDelta: 8000,
+    happinessDelta: -5,
+  },
+  {
+    id: 'loans_full',
+    label: 'Mostly loans',
+    blurb: 'Cover full cost of attendance with borrowing.',
+    debtMultiplier: 1.08,
+    bankDelta: 1000,
+    happinessDelta: -3,
+  },
+]
+
+/**
+ * Adjust starting finances based on how the player funded college.
+ */
+export function applyFinancing(stats, financingId) {
+  const opt = FINANCING_OPTIONS.find((o) => o.id === financingId)
+  if (!opt) return { ...stats }
+  const newDebt = Math.max(0, Math.round(stats.debt * opt.debtMultiplier))
+  const newBank = stats.bank + opt.bankDelta
+  const newHappiness = Math.min(100, Math.max(0, stats.happiness + opt.happinessDelta))
+  return {
+    ...stats,
+    debt: newDebt,
+    bank: newBank,
+    happiness: newHappiness,
+  }
+}
+
+/**
+ * Rough months to pay off student debt if the player dedicates ~10% of gross salary monthly
+ * at `annualRate` APR (simplified; for UI copy only).
+ */
+export function estimateDebtPayoffMonths({ debt, annualSalary, annualRate = 0.06 }) {
+  if (debt <= 0) return 0
+  if (!annualSalary || annualSalary <= 0) return null
+  const monthlyTowardDebt = Math.max(250, (annualSalary * 0.1) / 12)
+  const monthlyRate = annualRate / 12
+  let balance = debt
+  let months = 0
+  const maxMonths = 600
+  while (balance > 1 && months < maxMonths) {
+    const interest = balance * monthlyRate
+    const principal = Math.min(balance, monthlyTowardDebt - interest)
+    if (principal <= 0) return null
+    balance = balance + interest - monthlyTowardDebt
+    months += 1
+  }
+  return months >= maxMonths ? null : months
+}
 
 /**
  * Apply a player's choice impact to the current game state.
@@ -42,4 +119,83 @@ export function computeNetWorth(state) {
  */
 export function isGameOver(currentNodeIndex, totalNodes) {
   return currentNodeIndex >= totalNodes
+}
+
+/**
+ * Apply regional pay + small wellbeing nudge from chosen city (static table).
+ * @param {object} stats
+ * @param {{ regionalSalaryMultiplier?: number, happinessDelta?: number }} city
+ */
+/**
+ * Nudge modeled salary toward a national example occupation wage (static JSON / BLS extract).
+ * @param {object} stats
+ * @param {{ medianWage?: number|null }} career
+ */
+export function applyCareerPathNudge(stats, career) {
+  if (!stats || !career?.medianWage || career.medianWage <= 0) return { ...stats }
+  const blended = Math.round(stats.salary * 0.65 + career.medianWage * 0.35)
+  return { ...stats, salary: Math.max(stats.salary, blended) }
+}
+
+export function applyCityToStats(stats, city) {
+  if (!stats || !city) return { ...stats }
+  const mult = typeof city.regionalSalaryMultiplier === 'number' ? city.regionalSalaryMultiplier : 1
+  const hd = typeof city.happinessDelta === 'number' ? city.happinessDelta : 0
+  return {
+    ...stats,
+    salary: Math.round(stats.salary * mult),
+    happiness: Math.min(100, Math.max(0, stats.happiness + hd)),
+  }
+}
+
+/**
+ * Salary vs living wage (annual); >1 means median salary covers the modeled floor.
+ */
+export function salaryToLivingWageRatio(annualSalary, livingWageAnnual) {
+  if (!annualSalary || annualSalary <= 0 || !livingWageAnnual || livingWageAnnual <= 0) return null
+  return annualSalary / livingWageAnnual
+}
+
+/**
+ * Toy 5-year forward view for UI (not actuarial advice).
+ * @param {object} stats
+ * @param {{ annualGrowthPct?: number }} opts
+ */
+export function computeFiveYearOutlook(stats, opts = {}) {
+  const g = typeof opts.annualGrowthPct === 'number' ? opts.annualGrowthPct : 0.03
+  const years = []
+  let salary = stats.salary
+  let debt = stats.debt
+  const bank = stats.bank
+  for (let y = 0; y <= 5; y += 1) {
+    if (y > 0) {
+      salary = Math.round(salary * (1 + g))
+      debt = Math.max(0, Math.round(debt * 0.92))
+    }
+    years.push({
+      year: y,
+      salary,
+      debt,
+      netWorth: Math.round(bank + y * 1500 - debt),
+    })
+  }
+  return { years, annualGrowthPct: g }
+}
+
+/**
+ * @param {string|number|null|undefined} unitId
+ * @returns {{ lines: string[], footnote?: string } | null}
+ */
+export function fsaStaticFactSnippet(unitId) {
+  const key = unitId != null ? String(unitId) : ''
+  const row = fsaSchoolHints.byUnitId?.[key]
+  if (!row) return null
+  const pct = typeof row.cohortDefaultRate3yr === 'number' ? row.cohortDefaultRate3yr * 100 : null
+  const lines = []
+  if (pct != null) lines.push(`Illustrative cohort default rate (static FSA-style demo): ${pct.toFixed(1)}%.`)
+  if (row.note) lines.push(row.note)
+  return {
+    lines,
+    footnote: fsaSchoolHints.footnote,
+  }
 }

@@ -1,0 +1,205 @@
+{
+  "byCip": {
+    "1101": {
+      "cipTitle": "Computer Science",
+      "category": "STEM",
+      "socExamples": [
+        {
+          "soc": "15-1252.00",
+          "title": "Software Developers",
+          "bls": {
+            "medianAnnualWage": 132270,
+            "pct10": 79000,
+            "pct25": 101000,
+            "pct75": 161000,
+            "pct90": 208000,
+            "growthPct2024_2034": 17.2,
+            "growthSource": "BLS projections (illustrative static extract)"
+          },
+          "onet": {
+            "jobZone": 4,
+            "brightOutlook": true,
+            "topSkills": [
+              "Programming",
+              "Complex Problem Solving"
+            ],
+            "taskTeaser": "Design systems, review code, coordinate upgrades."
+          }
+        },
+        {
+          "soc": "15-1254.00",
+          "title": "Web Developers",
+          "bls": {
+            "medianAnnualWage": 83740,
+            "growthPct2024_2034": 8.1,
+            "growthSource": "BLS projections (illustrative)"
+          },
+          "onet": {
+            "jobZone": 3,
+            "brightOutlook": true,
+            "topSkills": [
+              "Web development",
+              "Attention to detail"
+            ],
+            "taskTeaser": "Build and maintain websites and web applications."
+          }
+        }
+      ],
+      "acs": {
+        "fieldOfDegreeNote": "CS-heavy occupations skew toward high STEM wages (ACS-style summary, illustrative).",
+        "outsideFieldPct": null
+      },
+      "sources": [
+        "BLS",
+        "O*NET-style notes",
+        "NCES CIP-SOC crosswalk (conceptual)"
+      ]
+    },
+    "2301": {
+      "cipTitle": "English Language and Literature",
+      "category": "Arts & Humanities",
+      "socExamples": [
+        {
+          "soc": "27-3043.00",
+          "title": "Writers and Authors",
+          "bls": {
+            "medianAnnualWage": 73150,
+            "growthPct2024_2034": 4.3,
+            "growthSource": "BLS projections (illustrative)"
+          },
+          "onet": {
+            "jobZone": 4,
+            "brightOutlook": false,
+            "topSkills": [
+              "Writing",
+              "Creativity"
+            ],
+            "taskTeaser": "Develop content for books, scripts, or digital media."
+          }
+        },
+        {
+          "soc": "25-1121.00",
+          "title": "Postsecondary Teachers",
+          "bls": {
+            "medianAnnualWage": 82010,
+            "growthPct2024_2034": 1.7,
+            "growthSource": "BLS projections (illustrative)"
+          },
+          "onet": {
+            "jobZone": 5,
+            "brightOutlook": true,
+            "topSkills": [
+              "Speaking",
+              "Reading comprehension"
+            ],
+            "taskTeaser": "Teach courses in English language and literature."
+          }
+        }
+      ],
+      "acs": {
+        "fieldOfDegreeNote": "English majors branch across education, media, and business writing (illustrative).",
+        "outsideFieldPct": null
+      },
+      "sources": [
+        "BLS",
+        "O*NET-style notes"
+      ]
+    },
+    "4220": {
+      "cipTitle": "Clinical / Counseling Psychology",
+      "category": "Social Sciences",
+      "socExamples": [
+        {
+          "soc": "19-3039.00",
+          "title": "Psychologists, All Other",
+          "bls": {
+            "medianAnnualWage": 106420,
+            "growthPct2024_2034": 6,
+            "growthSource": "BLS projections (illustrative)"
+          },
+          "onet": {
+            "jobZone": 5,
+            "brightOutlook": true,
+            "topSkills": [
+              "Active listening",
+              "Social perceptiveness"
+            ],
+            "taskTeaser": "Study cognitive, emotional, and social processes."
+          }
+        }
+      ],
+      "acs": {
+        "fieldOfDegreeNote": "Graduate training often required for licensed practice (illustrative).",
+        "outsideFieldPct": null
+      },
+      "sources": [
+        "BLS",
+        "O*NET-style notes"
+      ]
+    },
+    "5138": {
+      "cipTitle": "Registered Nursing",
+      "category": "Health",
+      "socExamples": [
+        {
+          "soc": "29-1141.00",
+          "title": "Registered Nurses",
+          "bls": {
+            "medianAnnualWage": 89610,
+            "growthPct2024_2034": 6.2,
+            "growthSource": "BLS projections (illustrative)"
+          },
+          "onet": {
+            "jobZone": 4,
+            "brightOutlook": true,
+            "topSkills": [
+              "Active listening",
+              "Critical thinking"
+            ],
+            "taskTeaser": "Coordinate patient care and educate families."
+          }
+        }
+      ],
+      "acs": {
+        "fieldOfDegreeNote": "Strong alignment between nursing degrees and RN roles (illustrative).",
+        "outsideFieldPct": null
+      },
+      "sources": [
+        "BLS",
+        "O*NET-style notes"
+      ]
+    },
+    "5202": {
+      "cipTitle": "Business Administration",
+      "category": "Business",
+      "socExamples": [
+        {
+          "soc": "11-1021.00",
+          "title": "General and Operations Managers",
+          "bls": {
+            "medianAnnualWage": 101590,
+            "growthPct2024_2034": 3.5,
+            "growthSource": "BLS projections (illustrative)"
+          },
+          "onet": {
+            "jobZone": 4,
+            "brightOutlook": false,
+            "topSkills": [
+              "Leadership",
+              "Coordination"
+            ],
+            "taskTeaser": "Plan, direct, and coordinate operations."
+          }
+        }
+      ],
+      "acs": {
+        "fieldOfDegreeNote": "Business degrees feed a wide occupational mix (illustrative).",
+        "outsideFieldPct": null
+      },
+      "sources": [
+        "BLS",
+        "O*NET-style notes"
+      ]
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "cities": [
+    {
+      "id": "us_avg",
+      "label": "U.S. average (baseline)",
+      "livingWageAnnual": 45600,
+      "regionalSalaryMultiplier": 1,
+      "happinessDelta": 0
+    },
+    {
+      "id": "austin_tx",
+      "label": "Austin, TX metro",
+      "livingWageAnnual": 51200,
+      "regionalSalaryMultiplier": 1.04,
+      "happinessDelta": 2
+    },
+    {
+      "id": "raleigh_nc",
+      "label": "Raleigh, NC metro",
+      "livingWageAnnual": 49800,
+      "regionalSalaryMultiplier": 0.98,
+      "happinessDelta": 1
+    },
+    {
+      "id": "chicago_il",
+      "label": "Chicago, IL metro",
+      "livingWageAnnual": 56800,
+      "regionalSalaryMultiplier": 1.06,
+      "happinessDelta": 0
+    },
+    {
+      "id": "nyc_ny",
+      "label": "New York City, NY",
+      "livingWageAnnual": 78200,
+      "regionalSalaryMultiplier": 1.18,
+      "happinessDelta": -3
+    },
+    {
+      "id": "sf_ca",
+      "label": "San Francisco Bay Area, CA",
+      "livingWageAnnual": 89500,
+      "regionalSalaryMultiplier": 1.28,
+      "happinessDelta": -5
+    }
+  ],
+  "footnote": "Living wage figures are illustrative snapshots for demo play (MIT Living Wage Calculator style annual household floor, rounded). Not individualized advice."
+}

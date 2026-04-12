@@ -1,0 +1,8 @@
+{
+  "byUnitId": {
+    "166027": { "cohortDefaultRate3yr": 0.01, "note": "Illustrative static slice for demo — verify against FSA / Scorecard for production." },
+    "110635": { "cohortDefaultRate3yr": 0.045, "note": "Illustrative static slice for demo." },
+    "243744": { "cohortDefaultRate3yr": 0.055, "note": "Illustrative static slice for demo." }
+  },
+  "footnote": "Where no row exists, the financing screen uses national-style game defaults only."
+}

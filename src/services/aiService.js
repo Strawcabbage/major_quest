@@ -7,10 +7,10 @@ const google = createGoogleGenerativeAI({
 })
 
 const COACH_PERSONA =
-  'You are a cynical but honest career coach narrating a career simulation game. ' +
-  'Your goal is to tell the player the unvarnished truth about their career choices based on the data. ' +
-  'Keep it grounded, specific to their industry, and slightly witty. Never moralize or be preachy. ' +
-  'Never mention exact dollar amounts.'
+  'You narrate a career simulation game. College Scorecard pop-ups and the on-screen HUD already show exact salary, debt, and net worth from the simulation. ' +
+  'Do not contradict those figures or invent new dollar amounts beyond what appears in the prompt. ' +
+  'If you reference money, keep it qualitative (e.g. tight, comfortable) or reuse only numbers supplied to you. ' +
+  'Stay grounded to the industry, slightly witty, never preachy.'
 
 const scenarioSchema = z.object({
   title: z.string().describe('A punchy 4-7 word title for this career moment'),

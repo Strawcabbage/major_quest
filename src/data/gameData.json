@@ -374,6 +374,131 @@
           ]
         }
       ]
+    },
+    {
+      "major_id": "explorer_001",
+      "title": "Career Explorer",
+      "emoji": "🎓",
+      "initial_stats": {
+        "salary": 52000,
+        "debt": 32000,
+        "happiness": 72,
+        "bank": 2500
+      },
+      "nodes": [
+        {
+          "node_id": "exp_y1",
+          "year": 1,
+          "phase": "Early Career",
+          "ai_context": "New grad entering the workforce, choosing first role type",
+          "options": [
+            {
+              "option_id": "specialist",
+              "label": "Specialist track (deep expertise)",
+              "impact": {
+                "bank_delta": 2000,
+                "happiness_delta": 5,
+                "salary_multiplier": 1.15,
+                "debt_delta": 0
+              }
+            },
+            {
+              "option_id": "generalist",
+              "label": "Generalist track (broad exposure)",
+              "impact": {
+                "bank_delta": 4000,
+                "happiness_delta": 8,
+                "salary_multiplier": 1.08,
+                "debt_delta": 0
+              }
+            }
+          ]
+        },
+        {
+          "node_id": "exp_y3",
+          "year": 3,
+          "phase": "Early Career",
+          "ai_context": "Mid-career tension: chase title or protect balance",
+          "options": [
+            {
+              "option_id": "promotion",
+              "label": "Push for promotion",
+              "impact": {
+                "bank_delta": 6000,
+                "happiness_delta": -12,
+                "salary_multiplier": 1.22,
+                "debt_delta": 0
+              }
+            },
+            {
+              "option_id": "steady",
+              "label": "Keep steady hours",
+              "impact": {
+                "bank_delta": 2500,
+                "happiness_delta": 12,
+                "salary_multiplier": 1.06,
+                "debt_delta": 0
+              }
+            }
+          ]
+        },
+        {
+          "node_id": "exp_y6",
+          "year": 6,
+          "phase": "The Pivot",
+          "ai_context": "Consider switching employers or industry",
+          "options": [
+            {
+              "option_id": "new_industry",
+              "label": "Pivot to a new industry",
+              "impact": {
+                "bank_delta": -4000,
+                "happiness_delta": 15,
+                "salary_multiplier": 1.12,
+                "debt_delta": 5000
+              }
+            },
+            {
+              "option_id": "stay_course",
+              "label": "Double down with current employer",
+              "impact": {
+                "bank_delta": 8000,
+                "happiness_delta": -5,
+                "salary_multiplier": 1.18,
+                "debt_delta": 0
+              }
+            }
+          ]
+        },
+        {
+          "node_id": "exp_y10",
+          "year": 10,
+          "phase": "Established Professional",
+          "ai_context": "Ten-year mark: leadership vs. independent path",
+          "options": [
+            {
+              "option_id": "leadership",
+              "label": "Move into leadership",
+              "impact": {
+                "bank_delta": 12000,
+                "happiness_delta": -8,
+                "salary_multiplier": 1.35,
+                "debt_delta": 0
+              }
+            },
+            {
+              "option_id": "ic",
+              "label": "Stay as senior individual contributor",
+              "impact": {
+                "bank_delta": 5000,
+                "happiness_delta": 10,
+                "salary_multiplier": 1.2,
+                "debt_delta": 0
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

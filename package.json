@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "enrich": "node --env-file=.env.local scripts/fetchRealData.js"
+    "enrich": "node --env-file=.env.local scripts/fetchRealData.js",
+    "build:cip-enrichment": "node scripts/buildCipEnrichment.js"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.62",
