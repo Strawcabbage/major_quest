@@ -1,5 +1,5 @@
 {
-  "name": "vite-temp",
+  "name": "major-quest",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -11,7 +11,10 @@
     "test": "vitest",
     "test:run": "vitest run",
     "enrich": "node --env-file=.env.local scripts/fetchRealData.js",
-    "build:cip-enrichment": "node scripts/buildCipEnrichment.js"
+    "build:cip-soc": "node scripts/buildCipToSocCatalog.js",
+    "build:cip-enrichment": "node scripts/buildCipEnrichment.js",
+    "build:career-catalog": "node --env-file=.env.local scripts/buildCareerCatalog.js",
+    "build:all-data": "node scripts/buildCipToSocCatalog.js && node --env-file=.env.local scripts/buildCareerCatalog.js && node scripts/buildCipEnrichment.js"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.62",
@@ -37,6 +40,7 @@
     "postcss": "^8.5.9",
     "tailwindcss": "^3.4.19",
     "vite": "^8.0.4",
-    "vitest": "^4.1.4"
+    "vitest": "^4.1.4",
+    "xlsx": "^0.18.5"
   }
 }

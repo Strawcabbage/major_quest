@@ -127,14 +127,84 @@ export function isGameOver(currentNodeIndex, totalNodes) {
  * @param {{ regionalSalaryMultiplier?: number, happinessDelta?: number }} city
  */
 /**
- * Nudge modeled salary toward a national example occupation wage (static JSON / BLS extract).
+ * Nudge modeled salary toward a national example occupation wage (static JSON / BLS extract)
+ * and apply optional per-SOC statModifiers from careerBranches.json.
  * @param {object} stats
  * @param {{ medianWage?: number|null }} career
+ * @param {{ salaryMultiplier?: number, happinessDelta?: number, bankDelta?: number } | null} [statModifiers]
  */
-export function applyCareerPathNudge(stats, career) {
-  if (!stats || !career?.medianWage || career.medianWage <= 0) return { ...stats }
-  const blended = Math.round(stats.salary * 0.65 + career.medianWage * 0.35)
-  return { ...stats, salary: Math.max(stats.salary, blended) }
+export function applyCareerPathNudge(stats, career, statModifiers) {
+  if (!stats) return stats
+  let next = { ...stats }
+  if (career?.medianWage && career.medianWage > 0) {
+    const blended = Math.round(next.salary * 0.65 + career.medianWage * 0.35)
+    next.salary = Math.max(next.salary, blended)
+  }
+  if (statModifiers) {
+    if (typeof statModifiers.salaryMultiplier === 'number') {
+      next.salary = Math.round(next.salary * statModifiers.salaryMultiplier)
+    }
+    if (typeof statModifiers.happinessDelta === 'number') {
+      next.happiness = Math.min(100, Math.max(0, next.happiness + statModifiers.happinessDelta))
+    }
+    if (typeof statModifiers.bankDelta === 'number') {
+      next.bank = next.bank + statModifiers.bankDelta
+    }
+  }
+  return next
+}
+
+/**
+ * Merge career-branch node overrides into a base list of decision nodes.
+ * - `replaceYear`: swap the node whose `year` matches.
+ * - `insertAfterYear`: inject a new node after the last node with that year.
+ * Nodes are kept sorted by year.
+ * @param {Array<object>} baseNodes
+ * @param {Array<{ replaceYear?: number, insertAfterYear?: number, node: object }>} [overrides]
+ */
+export function resolvePlaythroughNodes(baseNodes, overrides) {
+  const list = Array.isArray(baseNodes) ? baseNodes.map((n) => ({ ...n })) : []
+  if (!Array.isArray(overrides) || overrides.length === 0) return list
+  for (const ov of overrides) {
+    if (!ov?.node) continue
+    if (typeof ov.replaceYear === 'number') {
+      const idx = list.findIndex((n) => n.year === ov.replaceYear)
+      if (idx >= 0) {
+        list[idx] = { ...ov.node }
+      } else {
+        list.push({ ...ov.node })
+      }
+    } else if (typeof ov.insertAfterYear === 'number') {
+      let idx = -1
+      for (let i = list.length - 1; i >= 0; i -= 1) {
+        if (list[i].year === ov.insertAfterYear) {
+          idx = i
+          break
+        }
+      }
+      const insertAt = idx >= 0 ? idx + 1 : list.length
+      list.splice(insertAt, 0, { ...ov.node })
+    } else {
+      list.push({ ...ov.node })
+    }
+  }
+  return list.sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
+}
+
+/**
+ * Merge a `{ skill: delta }` map into the existing careerSkills state.
+ * @param {Record<string, number>} current
+ * @param {Record<string, number> | null | undefined} delta
+ * @returns {Record<string, number>}
+ */
+export function applyCareerSkillDelta(current, delta) {
+  if (!delta || typeof delta !== 'object') return { ...(current ?? {}) }
+  const next = { ...(current ?? {}) }
+  for (const [skill, d] of Object.entries(delta)) {
+    if (typeof d !== 'number') continue
+    next[skill] = (next[skill] ?? 0) + d
+  }
+  return next
 }
 
 export function applyCityToStats(stats, city) {

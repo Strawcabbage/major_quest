@@ -1,0 +1,449 @@
+{
+  "note": "Per-SOC branching rules applied when the user picks a career. statModifiers scale/shift stats at career pick. nodeOverrides either replace or insert decision nodes in the playthrough. Option skillDelta maps bump state.careerSkills.",
+  "defaultMechanicsTag": "generic_professional",
+  "bySoc": {
+    "15-1252.00": {
+      "statModifiers": { "salaryMultiplier": 1.05, "happinessDelta": -2, "bankDelta": 1500 },
+      "skills": ["Programming", "Complex Problem Solving"],
+      "flavor": "On-call rotations and code review cycles shape the cadence.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 3,
+          "node": {
+            "node_id": "soc_15_1252_oncall",
+            "year": 3,
+            "phase": "Early Career",
+            "ai_context": "Software dev with 2-3 yrs experience weighing on-call shifts vs side projects",
+            "options": [
+              {
+                "option_id": "oncall_rotation",
+                "label": "Take the on-call rotation (big comp bump)",
+                "impact": { "bank_delta": 9000, "happiness_delta": -12, "salary_multiplier": 1.22, "debt_delta": 0 },
+                "skillDelta": { "Complex Problem Solving": 2 }
+              },
+              {
+                "option_id": "open_source",
+                "label": "Invest nights in open source + tech writing",
+                "impact": { "bank_delta": 1500, "happiness_delta": 8, "salary_multiplier": 1.08, "debt_delta": 0 },
+                "skillDelta": { "Programming": 2 }
+              }
+            ]
+          }
+        },
+        {
+          "insertAfterYear": 6,
+          "node": {
+            "node_id": "soc_15_1252_staff_review",
+            "year": 7,
+            "phase": "The Pivot",
+            "ai_context": "Senior dev asked to lead a framework migration with 10+ partner teams",
+            "options": [
+              {
+                "option_id": "lead_migration",
+                "label": "Own the migration (scope + politics)",
+                "impact": { "bank_delta": 18000, "happiness_delta": -6, "salary_multiplier": 1.18, "debt_delta": 0 },
+                "skillDelta": { "Complex Problem Solving": 2, "Programming": 1 }
+              },
+              {
+                "option_id": "mentor_juniors",
+                "label": "Mentor two junior engineers instead",
+                "impact": { "bank_delta": 5000, "happiness_delta": 12, "salary_multiplier": 1.06, "debt_delta": 0 },
+                "skillDelta": { "Programming": 1 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "15-1212.00": {
+      "statModifiers": { "salaryMultiplier": 1.06, "happinessDelta": -4, "bankDelta": 1000 },
+      "skills": ["Systems Evaluation", "Critical Thinking"],
+      "flavor": "Incident response pagers and compliance audits dominate year 3-7.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 3,
+          "node": {
+            "node_id": "soc_15_1212_incident",
+            "year": 3,
+            "phase": "Early Career",
+            "ai_context": "Security analyst with 2 yrs experience faces first major incident response",
+            "options": [
+              {
+                "option_id": "lead_incident",
+                "label": "Lead the incident response nights + weekends",
+                "impact": { "bank_delta": 8000, "happiness_delta": -15, "salary_multiplier": 1.2, "debt_delta": 0 },
+                "skillDelta": { "Critical Thinking": 3 }
+              },
+              {
+                "option_id": "certifications",
+                "label": "Pivot to certifications (CISSP) this cycle",
+                "impact": { "bank_delta": -2000, "happiness_delta": 6, "salary_multiplier": 1.12, "debt_delta": 3000 },
+                "skillDelta": { "Systems Evaluation": 2 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "15-2051.00": {
+      "statModifiers": { "salaryMultiplier": 1.04, "happinessDelta": 0, "bankDelta": 1500 },
+      "skills": ["Mathematics", "Programming"],
+      "flavor": "Model drift, notebooks, and stakeholder translation.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 3,
+          "node": {
+            "node_id": "soc_15_2051_model",
+            "year": 3,
+            "phase": "Early Career",
+            "ai_context": "Data scientist asked to ship an uncertain ML model to production",
+            "options": [
+              {
+                "option_id": "ship_model",
+                "label": "Ship the model and iterate live",
+                "impact": { "bank_delta": 6000, "happiness_delta": -8, "salary_multiplier": 1.18, "debt_delta": 0 },
+                "skillDelta": { "Mathematics": 2 }
+              },
+              {
+                "option_id": "research_path",
+                "label": "Push back and publish a paper first",
+                "impact": { "bank_delta": 500, "happiness_delta": 10, "salary_multiplier": 1.05, "debt_delta": 0 },
+                "skillDelta": { "Programming": 1, "Mathematics": 1 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "27-3043.00": {
+      "statModifiers": { "salaryMultiplier": 0.98, "happinessDelta": 6, "bankDelta": -500 },
+      "skills": ["Writing", "Creativity"],
+      "flavor": "Irregular contracts, long form deadlines, occasional royalties.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 4,
+          "node": {
+            "node_id": "soc_27_3043_book_deal",
+            "year": 4,
+            "phase": "Early Career",
+            "ai_context": "Writer offered a book advance but must take an 18 month unpaid leave",
+            "options": [
+              {
+                "option_id": "take_advance",
+                "label": "Take the advance and book the leave",
+                "impact": { "bank_delta": 12000, "happiness_delta": 15, "salary_multiplier": 0.75, "debt_delta": 0 },
+                "skillDelta": { "Writing": 3, "Creativity": 2 }
+              },
+              {
+                "option_id": "keep_dayjob",
+                "label": "Keep the day job, write nights and weekends",
+                "impact": { "bank_delta": 2000, "happiness_delta": -5, "salary_multiplier": 1.12, "debt_delta": 0 },
+                "skillDelta": { "Writing": 1 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "25-1123.00": {
+      "statModifiers": { "salaryMultiplier": 1.02, "happinessDelta": 4, "bankDelta": 0 },
+      "skills": ["Speaking", "Writing"],
+      "flavor": "Tenure clock pressure and long publication cycles.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 4,
+          "node": {
+            "node_id": "soc_25_1123_tenure",
+            "year": 4,
+            "phase": "Early Career",
+            "ai_context": "Postsecondary English faculty on the tenure track weighing research vs teaching load",
+            "options": [
+              {
+                "option_id": "tenure_push",
+                "label": "Aggressive publication push",
+                "impact": { "bank_delta": -1000, "happiness_delta": -10, "salary_multiplier": 1.15, "debt_delta": 0 },
+                "skillDelta": { "Writing": 3 }
+              },
+              {
+                "option_id": "teaching_focus",
+                "label": "Lean into teaching and service",
+                "impact": { "bank_delta": 2000, "happiness_delta": 10, "salary_multiplier": 1.04, "debt_delta": 0 },
+                "skillDelta": { "Speaking": 2 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "25-2031.00": {
+      "statModifiers": { "salaryMultiplier": 0.95, "happinessDelta": 8, "bankDelta": 0 },
+      "skills": ["Instructing", "Learning Strategies"],
+      "flavor": "Summers off, union steps, heavy grading cycles.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 3,
+          "node": {
+            "node_id": "soc_25_2031_union_ask",
+            "year": 3,
+            "phase": "Early Career",
+            "ai_context": "High school English teacher asked to chair department",
+            "options": [
+              {
+                "option_id": "chair_dept",
+                "label": "Take the department chair stipend",
+                "impact": { "bank_delta": 3500, "happiness_delta": -8, "salary_multiplier": 1.1, "debt_delta": 0 },
+                "skillDelta": { "Instructing": 2 }
+              },
+              {
+                "option_id": "masters_night",
+                "label": "Enroll in Masters for salary step",
+                "impact": { "bank_delta": -4000, "happiness_delta": 2, "salary_multiplier": 1.08, "debt_delta": 15000 },
+                "skillDelta": { "Learning Strategies": 2 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "27-3031.00": {
+      "statModifiers": { "salaryMultiplier": 1.0, "happinessDelta": 2, "bankDelta": 500 },
+      "skills": ["Writing", "Speaking"],
+      "flavor": "Crisis comms cycles and media relationships.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 4,
+          "node": {
+            "node_id": "soc_27_3031_crisis",
+            "year": 4,
+            "phase": "Early Career",
+            "ai_context": "PR specialist pulled onto a crisis communications team during a product recall",
+            "options": [
+              {
+                "option_id": "front_the_crisis",
+                "label": "Own the press briefings",
+                "impact": { "bank_delta": 7000, "happiness_delta": -10, "salary_multiplier": 1.2, "debt_delta": 0 },
+                "skillDelta": { "Speaking": 3 }
+              },
+              {
+                "option_id": "behind_scenes",
+                "label": "Stay behind-scenes, run the statement drafting",
+                "impact": { "bank_delta": 3000, "happiness_delta": 4, "salary_multiplier": 1.08, "debt_delta": 0 },
+                "skillDelta": { "Writing": 2 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "29-1141.00": {
+      "statModifiers": { "salaryMultiplier": 1.0, "happinessDelta": -4, "bankDelta": 1000 },
+      "skills": ["Active Listening", "Critical Thinking"],
+      "flavor": "Shift work, charge-nurse ladder, compassion fatigue risk.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 4,
+          "node": {
+            "node_id": "soc_29_1141_charge",
+            "year": 4,
+            "phase": "Early Career",
+            "ai_context": "RN offered charge-nurse shifts with a pay bump but weekend holds",
+            "options": [
+              {
+                "option_id": "charge_shift",
+                "label": "Accept charge-nurse rotation",
+                "impact": { "bank_delta": 6000, "happiness_delta": -10, "salary_multiplier": 1.18, "debt_delta": 0 },
+                "skillDelta": { "Critical Thinking": 2 }
+              },
+              {
+                "option_id": "bsn_certs",
+                "label": "Pursue specialty certification (wound care / ICU)",
+                "impact": { "bank_delta": -2500, "happiness_delta": 6, "salary_multiplier": 1.12, "debt_delta": 4000 },
+                "skillDelta": { "Active Listening": 2 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "29-1171.00": {
+      "statModifiers": { "salaryMultiplier": 1.15, "happinessDelta": -6, "bankDelta": -2000 },
+      "skills": ["Complex Problem Solving", "Critical Thinking"],
+      "flavor": "Master's debt, autonomy, prescriber responsibility.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 3,
+          "node": {
+            "node_id": "soc_29_1171_primary_care",
+            "year": 3,
+            "phase": "Early Career",
+            "ai_context": "NP choosing between a busy primary care panel and a specialty clinic",
+            "options": [
+              {
+                "option_id": "primary_panel",
+                "label": "High-volume primary care panel",
+                "impact": { "bank_delta": 9000, "happiness_delta": -12, "salary_multiplier": 1.18, "debt_delta": 0 },
+                "skillDelta": { "Critical Thinking": 2 }
+              },
+              {
+                "option_id": "specialty_clinic",
+                "label": "Join a specialty clinic (slower ramp)",
+                "impact": { "bank_delta": 3000, "happiness_delta": 8, "salary_multiplier": 1.08, "debt_delta": 0 },
+                "skillDelta": { "Complex Problem Solving": 2 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "11-1021.00": {
+      "statModifiers": { "salaryMultiplier": 1.04, "happinessDelta": -2, "bankDelta": 1500 },
+      "skills": ["Coordination", "Management of Personnel"],
+      "flavor": "P&L accountability, reorg fatigue.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 3,
+          "node": {
+            "node_id": "soc_11_1021_pnl",
+            "year": 3,
+            "phase": "Early Career",
+            "ai_context": "Operations manager handed a P&L for an underperforming line",
+            "options": [
+              {
+                "option_id": "turnaround",
+                "label": "Lead a turnaround (layoffs on the table)",
+                "impact": { "bank_delta": 12000, "happiness_delta": -15, "salary_multiplier": 1.22, "debt_delta": 0 },
+                "skillDelta": { "Management of Personnel": 3 }
+              },
+              {
+                "option_id": "lateral_move",
+                "label": "Lateral to a healthier division",
+                "impact": { "bank_delta": 3000, "happiness_delta": 8, "salary_multiplier": 1.06, "debt_delta": 0 },
+                "skillDelta": { "Coordination": 2 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "11-2021.00": {
+      "statModifiers": { "salaryMultiplier": 1.08, "happinessDelta": -3, "bankDelta": 2000 },
+      "skills": ["Coordination", "Active Learning"],
+      "flavor": "Quarterly campaign cycles and attribution debates.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 4,
+          "node": {
+            "node_id": "soc_11_2021_campaign",
+            "year": 4,
+            "phase": "Early Career",
+            "ai_context": "Marketing manager pitched a risky brand rebrand",
+            "options": [
+              {
+                "option_id": "bold_rebrand",
+                "label": "Go bold on the rebrand",
+                "impact": { "bank_delta": 9000, "happiness_delta": -6, "salary_multiplier": 1.18, "debt_delta": 0 },
+                "skillDelta": { "Coordination": 2, "Active Learning": 1 }
+              },
+              {
+                "option_id": "measured_tweaks",
+                "label": "Measured iterative tweaks",
+                "impact": { "bank_delta": 3500, "happiness_delta": 6, "salary_multiplier": 1.08, "debt_delta": 0 },
+                "skillDelta": { "Active Learning": 2 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "13-2051.00": {
+      "statModifiers": { "salaryMultiplier": 1.1, "happinessDelta": -4, "bankDelta": 2500 },
+      "skills": ["Mathematics", "Critical Thinking"],
+      "flavor": "Hours, earnings season, bonus volatility.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 3,
+          "node": {
+            "node_id": "soc_13_2051_cfa",
+            "year": 3,
+            "phase": "Early Career",
+            "ai_context": "Financial analyst deciding whether to pursue the CFA program",
+            "options": [
+              {
+                "option_id": "chase_cfa",
+                "label": "Commit to the CFA grind",
+                "impact": { "bank_delta": -3000, "happiness_delta": -10, "salary_multiplier": 1.22, "debt_delta": 4000 },
+                "skillDelta": { "Mathematics": 3 }
+              },
+              {
+                "option_id": "mba_nights",
+                "label": "Part-time MBA track instead",
+                "impact": { "bank_delta": -5000, "happiness_delta": -4, "salary_multiplier": 1.14, "debt_delta": 25000 },
+                "skillDelta": { "Critical Thinking": 2 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "13-1161.00": {
+      "statModifiers": { "salaryMultiplier": 1.0, "happinessDelta": 2, "bankDelta": 500 },
+      "skills": ["Critical Thinking", "Writing"],
+      "flavor": "Cross-team research + stakeholder management.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 3,
+          "node": {
+            "node_id": "soc_13_1161_panel",
+            "year": 3,
+            "phase": "Early Career",
+            "ai_context": "Market research analyst pitched a bold panel-study methodology",
+            "options": [
+              {
+                "option_id": "bold_methodology",
+                "label": "Run the unconventional panel study",
+                "impact": { "bank_delta": 4000, "happiness_delta": 4, "salary_multiplier": 1.15, "debt_delta": 0 },
+                "skillDelta": { "Critical Thinking": 2 }
+              },
+              {
+                "option_id": "safe_survey",
+                "label": "Stick with the standard survey approach",
+                "impact": { "bank_delta": 2500, "happiness_delta": 2, "salary_multiplier": 1.06, "debt_delta": 0 },
+                "skillDelta": { "Writing": 1 }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "19-3039.00": {
+      "statModifiers": { "salaryMultiplier": 1.05, "happinessDelta": 0, "bankDelta": -1000 },
+      "skills": ["Active Listening", "Social Perceptiveness"],
+      "flavor": "Research grants or clinical caseload rhythm.",
+      "nodeOverrides": [
+        {
+          "replaceYear": 4,
+          "node": {
+            "node_id": "soc_19_3039_grant",
+            "year": 4,
+            "phase": "Early Career",
+            "ai_context": "Psychologist weighing a multi-year research grant vs private practice",
+            "options": [
+              {
+                "option_id": "research_grant",
+                "label": "Run the federally funded research grant",
+                "impact": { "bank_delta": 2000, "happiness_delta": 10, "salary_multiplier": 1.06, "debt_delta": 0 },
+                "skillDelta": { "Social Perceptiveness": 2 }
+              },
+              {
+                "option_id": "private_practice",
+                "label": "Launch private practice caseload",
+                "impact": { "bank_delta": 8000, "happiness_delta": -6, "salary_multiplier": 1.15, "debt_delta": 5000 },
+                "skillDelta": { "Active Listening": 2 }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

@@ -19,7 +19,13 @@ export default function FinalSummary() {
     selectedCity,
     outlookPreview,
     dataQualityFlags,
+    careerSkills,
   } = state
+
+  const skillEntries = careerSkills
+    ? Object.entries(careerSkills).sort(([, a], [, b]) => b - a)
+    : []
+  const maxSkill = skillEntries.reduce((m, [, v]) => Math.max(m, v), 0)
 
   const netWorth = computeNetWorth(stats)
   const payoffMonths = estimateDebtPayoffMonths({
@@ -92,6 +98,32 @@ export default function FinalSummary() {
           </div>
         ))}
       </div>
+
+      {skillEntries.length > 0 && (
+        <div className="pixel-panel p-4 space-y-2">
+          <p className="text-[8px] text-stone-500 uppercase tracking-widest">Career skills meter</p>
+          <p className="text-[9px] text-stone-500 leading-snug">
+            Tally of career-flavored choices during the playing phase (O*NET-style skill tags on your SOC).
+          </p>
+          <ul className="space-y-1.5">
+            {skillEntries.map(([skill, value]) => {
+              const pct = maxSkill > 0 ? Math.max(0, Math.min(100, (value / Math.max(maxSkill, 1)) * 100)) : 0
+              return (
+                <li key={skill} className="flex items-center gap-2 text-[9px] text-stone-300">
+                  <span className="w-36 truncate">{skill}</span>
+                  <span className="flex-1 h-2 bg-stone-800 rounded-sm overflow-hidden">
+                    <span
+                      className="block h-full bg-sky-400/70"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </span>
+                  <span className="w-6 text-right text-sky-300">{value}</span>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      )}
 
       {outlookPreview?.years?.length > 0 && (
         <div className="pixel-panel p-4 space-y-2">

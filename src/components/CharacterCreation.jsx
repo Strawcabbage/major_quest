@@ -53,6 +53,7 @@ export default function CharacterCreation() {
               onClick={() => setAvatarId(a.id)}
               className={`pixel-avatar-tile ${avatarId === a.id ? 'pixel-avatar-tile--active' : ''}`}
               title={a.label}
+              aria-pressed={avatarId === a.id}
             >
               <span className="text-4xl sm:text-5xl pixel-crisp" aria-hidden>
                 {a.glyph}

@@ -39,12 +39,12 @@ function MoneyRow({ label, value }) {
 
 export default function StatsSidebar() {
   const { state } = useGame()
-  const { stats, selectedMajor, currentNodeIndex, choiceHistory, playerName, avatarId, school, program } = state
+  const { stats, selectedMajor, currentNodeIndex, choiceHistory, playerName, avatarId, school, program, playthroughNodes } = state
 
   if (!stats) return null
 
   const avatar = AVATARS.find((a) => a.id === avatarId)
-  const totalNodes = selectedMajor?.nodes.length ?? 0
+  const totalNodes = playthroughNodes?.length || selectedMajor?.nodes?.length || 0
   const yearProgress = totalNodes > 0 ? (currentNodeIndex / totalNodes) * 100 : 0
   const netWorth = computeNetWorth(stats)
   const currentYear =

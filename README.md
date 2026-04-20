@@ -55,11 +55,21 @@ The design favors **live Scorecard** for anything that must vary by **school and
    - **Wiring:** `blsClient.js` + `constants/blsCpiRegions.js` for series IDs. Dev posts through `/api/bls` (custom Vite plugin) so registration keys stay server-side when provided.
 
 3. **O*NET Web Services**  
-   - **Used for:** A short **occupation blurb** in the program fact modal, keyed off a representative SOC per simulation track (`cipToSoc.js`).  
-   - **Why:** Rich, standardized occupation descriptions without maintaining copy for every CIP.  
-   - **Wiring:** `onetClient.js`; dev uses `/api/onet/...` proxy with optional `ONET_API_KEY` / `VITE_ONET_API_KEY`.
+   - **Used for:** A short **occupation blurb** in the program fact modal, plus live **occupation detail** and **Detailed Work Activities** rendered inside the rewritten career path picker when the static catalog lacks data. Keyed off a representative SOC per simulation track (`cipToSoc.js`) for the modal; the career picker now iterates the full SOC list for the program's CIP.  
+   - **Why:** Rich, standardized occupation descriptions and DWA task-level detail without maintaining copy for every SOC.  
+   - **Wiring:** `onetClient.js` (`fetchOnetFactLines`, `fetchOccupationDetail`, `fetchDetailedWorkActivities`); dev uses the `/api/onet/...` proxy with optional `ONET_API_KEY` / `VITE_ONET_API_KEY`.
 
-4. **Google Generative AI** (via Vercel AI SDK)  
+4. **Adzuna Jobs API**  
+   - **Used for:** Live **civilian job postings** displayed side-by-side in the career path picker for the currently selected occupation.  
+   - **Why:** Gives the career card real-world context (titles, employers, salary bands) instead of only national medians.  
+   - **Wiring:** `adzunaClient.js`; dev uses the `/api/adzuna/...` proxy that appends `app_id` / `app_key` server-side from `ADZUNA_APP_ID` / `ADZUNA_APP_KEY`. CORS on Adzuna blocks direct browser calls, so static production builds need a serverless proxy.
+
+5. **USAJobs Search API**  
+   - **Used for:** Live **federal job postings** shown alongside Adzuna results, filtered by occupation keyword and (when known) the OPM series from `careerCatalog.json`.  
+   - **Why:** Federal roles are a meaningful outcome for many majors and USAJobs is the authoritative source.  
+   - **Wiring:** `usajobsClient.js`; always routed through the `/api/usajobs/...` dev proxy because USAJobs requires a `User-Agent` header (forbidden in browsers) and does not support CORS. Env: `USAJOBS_EMAIL`, `USAJOBS_API_KEY`.
+
+6. **Google Generative AI** (via Vercel AI SDK)  
    - **Used for:** **FinalSummary** “LinkedIn retrospective” title + story.  
    - **Why:** Lets the ending feel personal while all **numbers** remain from the engine and Scorecard seeds.  
    - **Wiring:** `aiService.js` and `VITE_GOOGLE_API_KEY`.
@@ -71,10 +81,13 @@ The design favors **live Scorecard** for anything that must vary by **school and
 | `gameData.json` | Authored **decision trees** per `major_id` and default starting stats. |
 | `benchmarks.json` | **National** median earnings/debt anchors for fact-modal comparisons. |
 | `cipEnrichment.json` | **Career path** cards: example SOCs, BLS-style wages and growth, O*NET-style teasers—**CIP-keyed** so the career step works offline for covered codes. |
+| `cipToSocCatalog.json` | CIP-4 → SOC list powering the expanded career picker (6+ SOCs per track). |
+| `careerCatalog.json` | Per-SOC profile (O*NET description, DWAs, tasks, skills, related occupations, BLS wage/growth, OPM series, Adzuna keywords). |
+| `careerBranches.json` | **Career-specific mechanics**: per-SOC `statModifiers`, O*NET skill tags, and `nodeOverrides` (replace or insert decision nodes during the playing phase). |
 | `cities.json` | **Metro snapshots**: illustrative living wage floors and **regional salary multipliers**; avoids scraping MIT Living Wage Calculator in the browser and keeps licensing/refresh simple. |
 | `fsaSchoolHints.json` | **Tiny demo map** of `unitid` → illustrative cohort default rate lines on the financing screen. Full FSA alignment would use OPEID and richer tables; this is intentionally scoped. |
 
-**Offline scripts:** `scripts/fetchRealData.js` refreshes national aggregates from Scorecard for maintainer workflows; `scripts/buildCipEnrichment.js` validates `cipEnrichment.json` (extensible toward CIP–SOC crosswalk + BLS merges).
+**Offline scripts:** `scripts/fetchRealData.js` refreshes national aggregates from Scorecard for maintainer workflows; `scripts/buildCipEnrichment.js` validates `cipEnrichment.json`; `scripts/buildCareerCatalog.js` refreshes `careerCatalog.json` by calling O*NET for every SOC listed in `cipToSocCatalog.json` (safe no-op without `ONET_API_KEY`).
 
 ---
 
@@ -88,12 +101,12 @@ Raw API arrays are **normalized** (`normalizeProgram`), **deduplicated by 4-digi
 
 1. **School** — Scorecard search/detail.  
 2. **Major** — Full program list for that school; `trackResolver` picks `gameData` major; fact modal may call BLS + O*NET; then phase → **career_path**.  
-3. **Career path** — `cipEnrichment.json` when present; otherwise generic paths; `applyCareerPathNudge` can blend salary toward an example national wage.  
+3. **Career path (two-pane)** — left list shows up to ~10 occupations for the program's CIP (merging `cipToSocCatalog.json`, `careerCatalog.json`, and any legacy `cipEnrichment.json` rows). Right detail pane renders O*NET description, DWA bullets, typical tasks, top skills, clickable **related occupations** chips, and a side-by-side **live postings** panel: Adzuna (civilian) and USAJobs (federal). Confirming a career fires `setCareerPath` with `soc`/`opmSeries`/`brightOutlook`, and `GameContext` composes `state.playthroughNodes` by applying that SOC's `careerBranches.json` `nodeOverrides` on top of the authored major nodes. `applyCareerPathNudge` now also accepts per-SOC `statModifiers`.  
 4. **City** — `cities.json`; `applyCityToStats` updates both `stats` and `statsBeforeFinancing` so **financing** applies to post-location baselines.  
 5. **Financing** — `FINANCING_OPTIONS` in `gameEngine.js`; `applyFinancing`; optional FSA static lines; fact modal → **five_year_outlook**.  
-6. **Five-year outlook** — `computeFiveYearOutlook` using career growth % when set; stores `outlookPreview` and enters **playing**.  
-7. **Playing** — `DecisionNode` applies `applyChoice` + annual debt interest between nodes.  
-8. **Game over** — `FinalSummary` + AI retrospective.
+6. **Five-year outlook** — `computeFiveYearOutlook` using career growth % when set; also surfaces a top-3 DWA summary line for the chosen SOC; stores `outlookPreview` and enters **playing**.  
+7. **Playing** — `DecisionNode` walks `state.playthroughNodes` (career-branched), applying `applyChoice` + annual debt interest between nodes and bumping `state.careerSkills` for any option that carries a `skillDelta`.  
+8. **Game over** — `FinalSummary` + AI retrospective + the **career skills meter** (O*NET-flavored skill tallies).
 
 ---
 
@@ -123,7 +136,9 @@ Create `.env.local` (see `.gitignore`; never commit secrets). Typical keys:
 |----------|---------|
 | `COLLEGE_SCORECARD_API_KEY` or `VITE_COLLEGE_SCORECARD_API_KEY` | College Scorecard (dev proxy prefers non-`VITE_` for injection). |
 | `BLS_API_KEY` or `VITE_BLS_API_KEY` | Optional BLS registration key for CPI requests. |
-| `ONET_API_KEY` or `VITE_ONET_API_KEY` | O*NET Web Services. |
+| `ONET_API_KEY` or `VITE_ONET_API_KEY` | O*NET Web Services (fact modal + career picker live detail + build script). |
+| `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` (optional `VITE_*` for static prod) | Adzuna civilian job postings in the career path picker. Dev proxy injects both server-side. |
+| `USAJOBS_EMAIL` / `USAJOBS_API_KEY` | USAJobs federal postings. Dev proxy sets `Host`, `User-Agent=USAJOBS_EMAIL`, and `Authorization-Key=USAJOBS_API_KEY`. Static prod builds need your own serverless proxy because browsers cannot set `User-Agent`. |
 | `VITE_GOOGLE_API_KEY` | Google AI for the final narrative. |
 
 Without Scorecard keys, **production static builds** need `VITE_COLLEGE_SCORECARD_API_KEY` or your own proxy; **local dev** uses the Vite proxy + `.env.local`.
@@ -141,6 +156,7 @@ Without Scorecard keys, **production static builds** need `VITE_COLLEGE_SCORECAR
 | `npm run test` / `npm run test:run` | Vitest (watch vs single run). |
 | `npm run enrich` | Scorecard script to refresh national-style aggregates (`scripts/fetchRealData.js`). |
 | `npm run build:cip-enrichment` | Validate/rewrite `cipEnrichment.json`. |
+| `npm run build:career-catalog` | Refresh `src/data/careerCatalog.json` by calling O*NET for every SOC in `cipToSocCatalog.json` (safe no-op without `ONET_API_KEY`). |
 
 ---
 

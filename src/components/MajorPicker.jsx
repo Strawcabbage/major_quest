@@ -8,6 +8,9 @@ import { programDataCompletenessScore } from '../services/scorecardClient'
 import { buildProgramFactLines, mergeProgramFactWithEnrichment, formatUsd } from '../utils/facts'
 import { fetchCpiSalaryStretchLine } from '../services/blsClient'
 import { fetchOnetFactLines } from '../services/onetClient'
+import { preloadCareerCatalog } from '../utils/useCareerCatalog'
+
+preloadCareerCatalog()
 
 const FALLBACK_CIP = {
   cs_001: '1101',
@@ -162,6 +165,7 @@ export default function MajorPicker() {
           <input
             type="search"
             placeholder="Search title or CIP…"
+            aria-label="Search majors"
             className="w-full pixel-panel px-2 py-1.5 text-[9px] bg-stone-900 border border-stone-700 text-stone-200"
             value={query}
             onChange={(e) => setQuery(e.target.value)}

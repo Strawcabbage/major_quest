@@ -2,16 +2,26 @@ import { useMemo } from 'react'
 import { useGame } from '../context/GameContext'
 import { computeFiveYearOutlook } from '../engine/gameEngine'
 import { formatUsd } from '../utils/facts'
+import { useCareerCatalog } from '../utils/useCareerCatalog'
 
 export default function FiveYearOutlook() {
   const { state, startPlayingAfterOutlook, goPhase } = useGame()
   const { stats, selectedCareerPath } = state
+  const careerCatalog = useCareerCatalog()
 
   const outlook = useMemo(() => {
     if (!stats) return null
     const g = selectedCareerPath?.growthPct != null ? selectedCareerPath.growthPct / 100 : 0.03
     return computeFiveYearOutlook(stats, { annualGrowthPct: g })
   }, [stats, selectedCareerPath])
+
+  const dwaLines = useMemo(() => {
+    const soc = selectedCareerPath?.soc
+    if (!soc) return []
+    const profile = careerCatalog.bySoc?.[soc]
+    const dwas = profile?.dwas ?? []
+    return dwas.slice(0, 3).map((d) => d.title).filter(Boolean)
+  }, [selectedCareerPath, careerCatalog])
 
   if (!stats || !outlook) {
     return (
@@ -36,6 +46,20 @@ export default function FiveYearOutlook() {
           where available) and a simple debt paydown curve — not a forecast.
         </p>
       </div>
+
+      {dwaLines.length > 0 && (
+        <div className="pixel-panel p-4 space-y-1.5">
+          <p className="text-[8px] text-stone-500 uppercase tracking-widest">What the work looks like</p>
+          <p className="text-[9px] text-stone-500">
+            Top O*NET Detailed Work Activities for {selectedCareerPath?.title ?? 'this career'}:
+          </p>
+          <ul className="list-disc pl-5 text-[10px] text-stone-300 space-y-0.5">
+            {dwaLines.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="pixel-panel p-4 overflow-x-auto">
         <table className="w-full text-[10px] text-stone-300">

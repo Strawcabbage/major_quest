@@ -8,6 +8,8 @@ import {
   isGameOver,
   applyCityToStats,
   applyCareerPathNudge,
+  applyCareerSkillDelta,
+  resolvePlaythroughNodes,
   salaryToLivingWageRatio,
   computeFiveYearOutlook,
   fsaStaticFactSnippet,
@@ -107,6 +109,73 @@ describe('applyCareerPathNudge', () => {
     const s = { salary: 40000, bank: 0, debt: 0, happiness: 50 }
     const next = applyCareerPathNudge(s, { medianWage: 100000 })
     expect(next.salary).toBeGreaterThan(40000)
+  })
+  it('applies statModifiers on top of median-wage blend', () => {
+    const s = { salary: 50000, bank: 1000, debt: 0, happiness: 60 }
+    const next = applyCareerPathNudge(s, { medianWage: 100000 }, {
+      salaryMultiplier: 1.1,
+      happinessDelta: -5,
+      bankDelta: 2000,
+    })
+    expect(next.salary).toBeGreaterThan(50000 * 1.1)
+    expect(next.happiness).toBe(55)
+    expect(next.bank).toBe(3000)
+  })
+  it('clamps happiness inside 0..100 when statModifiers push past bounds', () => {
+    const s = { salary: 50000, bank: 0, debt: 0, happiness: 98 }
+    const next = applyCareerPathNudge(s, {}, { happinessDelta: 25 })
+    expect(next.happiness).toBe(100)
+  })
+})
+
+describe('applyCareerSkillDelta', () => {
+  it('accumulates deltas across calls', () => {
+    const a = applyCareerSkillDelta({}, { Programming: 2 })
+    const b = applyCareerSkillDelta(a, { Programming: 1, 'Complex Problem Solving': 3 })
+    expect(b).toEqual({ Programming: 3, 'Complex Problem Solving': 3 })
+  })
+  it('handles missing delta', () => {
+    const a = applyCareerSkillDelta({ X: 1 }, null)
+    expect(a).toEqual({ X: 1 })
+  })
+  it('ignores non-numeric entries', () => {
+    const a = applyCareerSkillDelta({}, { Programming: 'two' })
+    expect(a).toEqual({})
+  })
+})
+
+describe('resolvePlaythroughNodes', () => {
+  const base = [
+    { node_id: 'n1', year: 1, phase: 'Early Career' },
+    { node_id: 'n3', year: 3, phase: 'Early Career' },
+    { node_id: 'n6', year: 6, phase: 'The Pivot' },
+    { node_id: 'n10', year: 10, phase: 'Established Professional' },
+  ]
+  it('returns a shallow copy of base when no overrides', () => {
+    const out = resolvePlaythroughNodes(base, [])
+    expect(out).toHaveLength(4)
+    expect(out[0]).not.toBe(base[0])
+    expect(out[0].node_id).toBe('n1')
+  })
+  it('replaces a node by year', () => {
+    const out = resolvePlaythroughNodes(base, [
+      { replaceYear: 3, node: { node_id: 'override_3', year: 3, phase: 'Early Career' } },
+    ])
+    const y3 = out.find((n) => n.year === 3)
+    expect(y3.node_id).toBe('override_3')
+    expect(out).toHaveLength(4)
+  })
+  it('inserts a node after a given year and keeps sort order', () => {
+    const out = resolvePlaythroughNodes(base, [
+      { insertAfterYear: 6, node: { node_id: 'extra_7', year: 7, phase: 'The Pivot' } },
+    ])
+    expect(out.map((n) => n.year)).toEqual([1, 3, 6, 7, 10])
+  })
+  it('appends when insertAfterYear target is missing', () => {
+    const out = resolvePlaythroughNodes(base, [
+      { insertAfterYear: 99, node: { node_id: 'appended', year: 12 } },
+    ])
+    expect(out[out.length - 1].node_id).toBe('appended')
   })
 })
 

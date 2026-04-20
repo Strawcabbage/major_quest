@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useGame } from '../context/GameContext'
 
 function FactLine({ line, index }) {
@@ -33,14 +34,39 @@ function FactLine({ line, index }) {
 export default function FactModal() {
   const { state, closeFact, backFact } = useGame()
   const fact = state.factModal
+  const dialogRef = useRef(null)
+
+  useEffect(() => {
+    if (!fact) return
+    const el = dialogRef.current
+    if (el) el.focus()
+
+    function onKey(e) {
+      if (e.key === 'Escape') closeFact()
+      if (e.key === 'Tab') {
+        const focusable = el?.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])')
+        if (!focusable?.length) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [fact, closeFact])
+
   if (!fact) return null
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 pixel-ui"
+      ref={dialogRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 pixel-ui outline-none"
       role="dialog"
       aria-modal="true"
       aria-labelledby="fact-title"
+      onClick={(e) => { if (e.target === e.currentTarget) closeFact() }}
     >
       <div className="pixel-dialog max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="pixel-dialog-header">

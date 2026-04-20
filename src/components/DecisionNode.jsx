@@ -4,11 +4,12 @@ import { generateScenarioText } from '../services/aiService'
 
 export default function DecisionNode() {
   const { state, makeChoice, setScenarioText } = useGame()
-  const { selectedMajor, currentNodeIndex, stats, scenarioText } = state
+  const { selectedMajor, currentNodeIndex, stats, scenarioText, playthroughNodes } = state
   const [loadingAI, setLoadingAI] = useState(false)
   const [choosing, setChoosing] = useState(false)
 
-  const node = selectedMajor?.nodes[currentNodeIndex]
+  const nodes = playthroughNodes?.length ? playthroughNodes : selectedMajor?.nodes ?? []
+  const node = nodes[currentNodeIndex]
 
   useEffect(() => {
     if (!node || !selectedMajor) return
@@ -72,6 +73,9 @@ export default function DecisionNode() {
         {node.options.map((option) => {
           const wealthDelta = option.impact.bank_delta
           const happinessDelta = option.impact.happiness_delta
+          const skillEntries = option.skillDelta
+            ? Object.entries(option.skillDelta).filter(([, d]) => typeof d === 'number' && d !== 0)
+            : []
           return (
             <button
               key={option.option_id}
@@ -96,6 +100,12 @@ export default function DecisionNode() {
                   {happinessDelta} mood
                 </span>
                 <span className="text-amber-600/90">×{option.impact.salary_multiplier.toFixed(1)} salary</span>
+                {skillEntries.map(([skill, d]) => (
+                  <span key={skill} className="text-sky-300/90">
+                    {d >= 0 ? '+' : ''}
+                    {d} {skill}
+                  </span>
+                ))}
               </div>
             </button>
           )

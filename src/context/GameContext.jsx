@@ -6,8 +6,11 @@ import {
   isGameOver,
   applyCityToStats,
   applyCareerPathNudge,
+  applyCareerSkillDelta,
+  resolvePlaythroughNodes,
 } from '../engine/gameEngine'
 import { buildInitialStats } from '../utils/facts'
+import careerBranches from '../data/careerBranches.json'
 
 const GameContext = createContext(null)
 
@@ -35,6 +38,10 @@ const initialState = {
   selectedCity: null,
   outlookPreview: null,
   dataQualityFlags: { career: 'scorecard_only', city: 'default' },
+  /** Nodes the playing phase walks through; seeded from selectedMajor + career overrides. */
+  playthroughNodes: [],
+  /** Running skill tallies from career-flavored option skillDelta values. */
+  careerSkills: {},
 }
 
 function gameReducer(state, action) {
@@ -62,6 +69,8 @@ function gameReducer(state, action) {
         selectedCity: null,
         outlookPreview: null,
         dataQualityFlags: { career: 'scorecard_only', city: 'default' },
+        playthroughNodes: [],
+        careerSkills: {},
       }
 
     case 'SET_PROGRAM_AND_MAJOR': {
@@ -77,23 +86,35 @@ function gameReducer(state, action) {
         outlookPreview: null,
         financingId: null,
         dataQualityFlags: { career: 'scorecard_only', city: 'default' },
+        playthroughNodes: [...(action.major?.nodes ?? [])],
+        careerSkills: {},
       }
     }
 
     case 'SET_CAREER_PATH': {
       if (!state.stats || !state.statsBeforeFinancing) return state
       const career = action.career
-      const nextStats = applyCareerPathNudge(state.stats, career)
-      const nextBefore = applyCareerPathNudge(state.statsBeforeFinancing, career)
+      const branch = career?.soc ? careerBranches.bySoc?.[career.soc] ?? null : null
+      const statMods = branch?.statModifiers ?? null
+      const nextStats = applyCareerPathNudge(state.stats, career, statMods)
+      const nextBefore = applyCareerPathNudge(state.statsBeforeFinancing, career, statMods)
+      const baseNodes = state.selectedMajor?.nodes ?? []
+      const overrides = branch?.nodeOverrides ?? []
+      const playthroughNodes = resolvePlaythroughNodes(baseNodes, overrides)
+      const seedSkills = Array.isArray(branch?.skills)
+        ? branch.skills.reduce((acc, name) => ({ ...acc, [name]: 0 }), {})
+        : {}
       return {
         ...state,
-        selectedCareerPath: career,
+        selectedCareerPath: { ...career, mechanicsApplied: Boolean(branch) },
         stats: nextStats,
         statsBeforeFinancing: nextBefore,
         dataQualityFlags: {
           ...state.dataQualityFlags,
           career: action.dataQuality ?? 'full',
         },
+        playthroughNodes,
+        careerSkills: seedSkills,
       }
     }
 
@@ -173,8 +194,12 @@ function gameReducer(state, action) {
       const afterChoice = applyChoice(state.stats, option.impact)
       const afterInterest = applyAnnualDebtInterest(afterChoice)
       const nextIndex = state.currentNodeIndex + 1
-      const totalNodes = state.selectedMajor.nodes.length
+      const playthrough = state.playthroughNodes?.length
+        ? state.playthroughNodes
+        : state.selectedMajor?.nodes ?? []
+      const totalNodes = playthrough.length
       const gameOver = isGameOver(nextIndex, totalNodes)
+      const nextSkills = applyCareerSkillDelta(state.careerSkills, option.skillDelta)
 
       return {
         ...state,
@@ -190,6 +215,7 @@ function gameReducer(state, action) {
             impact: `bank ${option.impact.bank_delta >= 0 ? '+' : ''}${option.impact.bank_delta}, happiness ${option.impact.happiness_delta >= 0 ? '+' : ''}${option.impact.happiness_delta}`,
           },
         ],
+        careerSkills: nextSkills,
         phase: gameOver ? 'game_over' : 'playing',
       }
     }
@@ -211,6 +237,7 @@ function gameReducer(state, action) {
         stats: { ...action.major.initial_stats },
         statsBeforeFinancing: { ...action.major.initial_stats },
         currentNodeIndex: 0,
+        playthroughNodes: [...(action.major?.nodes ?? [])],
       }
 
     /** Direct entry for tests */
@@ -224,6 +251,7 @@ function gameReducer(state, action) {
         stats: { ...action.stats },
         statsBeforeFinancing: { ...action.stats },
         currentNodeIndex: 0,
+        playthroughNodes: [...(action.major?.nodes ?? [])],
       }
 
     default:

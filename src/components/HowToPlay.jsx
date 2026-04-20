@@ -3,7 +3,7 @@ import { useGame } from '../context/GameContext'
 const RULES = [
   'Create your student: name them and pick a portrait.',
   'Choose a real college from the College Scorecard database.',
-  'Pick a major we have a full story for (CS, Nursing, or English) — stats pull from your school when available.',
+  'Pick any major your school offers — career data from O*NET covers hundreds of fields. Stats pull from your school when available.',
   'Select how you pay for school; debt and savings shift before your career timeline begins.',
   'Each year, pick between two paths. Your salary, debt, savings, and happiness evolve — pop-ups ground choices in data.',
   'At the end, see net worth, debt, and a rough payoff timeline (simplified math, not financial advice).',
