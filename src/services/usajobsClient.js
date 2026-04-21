@@ -1,10 +1,9 @@
 /**
  * Thin USAJobs search client. USAJobs requires three headers (Host,
  * User-Agent = registered email, Authorization-Key), and browsers cannot set
- * User-Agent. We always route through the `/api/usajobs/...` Vite dev proxy
- * in development; in prod a static build can only call USAJobs through a
- * serverless proxy you deploy yourself, so we bail out when the dev proxy
- * isn't available.
+ * User-Agent. Requests always go to `/api/usajobs/...` which is handled by
+ * the Vite dev proxy in development and a Vercel serverless function in
+ * production (see api/usajobs.js).
  */
 
 /**
@@ -17,7 +16,6 @@
  * @returns {Promise<JobPosting[]>}
  */
 export async function searchUsajobsPostings({ keyword, opmSeries, results = 5 }) {
-  if (!import.meta.env.DEV) return []
   const params = new URLSearchParams()
   if (keyword) params.set('Keyword', keyword)
   if (opmSeries) params.set('JobCategoryCode', opmSeries)

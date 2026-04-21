@@ -46,6 +46,18 @@ describe('careerCatalog', () => {
 })
 
 describe('careerBranches', () => {
+  it('at least 700 catalog SOCs have a branch', () => {
+    const branchCount = Object.keys(branches.bySoc).length
+    expect(branchCount).toBeGreaterThanOrEqual(700)
+  })
+
+  it('every branch has skills array with at least 2 entries', () => {
+    for (const [soc, branch] of Object.entries(branches.bySoc)) {
+      expect(Array.isArray(branch.skills), `${soc} missing skills`).toBe(true)
+      expect(branch.skills.length, `${soc} needs >=2 skills`).toBeGreaterThanOrEqual(2)
+    }
+  })
+
   it('every branch SOC exists in the catalog', () => {
     for (const soc of Object.keys(branches.bySoc)) {
       expect(catalog.bySoc[soc], `branch for ${soc} has no catalog entry`).toBeTruthy()

@@ -289,6 +289,7 @@ export default function CareerPathPicker() {
       growthPct: c.growthPct ?? 3,
       opmSeries: c.opmSeries ?? null,
       brightOutlook: Boolean(c.brightOutlook),
+      relatedCareer: c.related?.[0] ?? null,
     }
     const quality = c.soc ? (c.hasMechanics ? 'full' : 'catalog_only') : 'scorecard_only'
     setCareerPath(payload, quality)

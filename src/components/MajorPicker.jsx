@@ -59,8 +59,10 @@ export default function MajorPicker() {
       if (category !== 'All' && cipUiCategory(p.cipCode) !== category) return false
       if (!q) return true
       const t = (p.title || '').toLowerCase()
-      const c = String(p.cipCode).toLowerCase()
-      return t.includes(q) || c.includes(q.replace(/\D/g, ''))
+      if (t.includes(q)) return true
+      const numericQ = q.replace(/\D/g, '')
+      if (numericQ) return String(p.cipCode).includes(numericQ)
+      return false
     })
   }, [allPrograms, query, category])
 
@@ -163,10 +165,10 @@ export default function MajorPicker() {
       {allPrograms.length > 0 && (
         <div className="space-y-2">
           <input
-            type="search"
+            type="text"
             placeholder="Search title or CIP…"
             aria-label="Search majors"
-            className="w-full pixel-panel px-2 py-1.5 text-[9px] bg-stone-900 border border-stone-700 text-stone-200"
+            className="w-full pixel-input"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

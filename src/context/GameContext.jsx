@@ -8,13 +8,16 @@ import {
   applyCareerPathNudge,
   applyCareerSkillDelta,
   resolvePlaythroughNodes,
+  buildCrossroadsNode,
+  computeNetWorth,
+  evaluateBadges,
 } from '../engine/gameEngine'
 import { buildInitialStats } from '../utils/facts'
 import careerBranches from '../data/careerBranches.json'
 
 const GameContext = createContext(null)
 
-/** @typedef {'title'|'how_to_play'|'character'|'school'|'major'|'career_path'|'city'|'financing'|'five_year_outlook'|'playing'|'game_over'} GamePhase */
+/** @typedef {'title'|'how_to_play'|'data_sources'|'character'|'school'|'major'|'career_path'|'city'|'financing'|'five_year_outlook'|'playing'|'game_over'} GamePhase */
 
 const STORAGE_KEY = 'major_quest_save'
 
@@ -55,6 +58,48 @@ export function hasSavedGame() {
   } catch {
     return false
   }
+}
+
+const HISTORY_KEY = 'major_quest_history'
+const MAX_HISTORY = 20
+
+function saveRunToHistory(state) {
+  try {
+    const history = getRunHistory()
+    const last = history[0]
+    if (last && Date.now() - last.id < 2000) return
+    const entry = {
+      id: Date.now(),
+      date: new Date().toISOString(),
+      major: state.selectedMajor ? `${state.selectedMajor.emoji} ${state.selectedMajor.title}` : 'Unknown',
+      school: state.school?.name ?? null,
+      career: state.selectedCareerPath?.title ?? null,
+      salary: state.stats?.salary ?? 0,
+      debt: state.stats?.debt ?? 0,
+      happiness: state.stats?.happiness ?? 0,
+      netWorth: computeNetWorth(state.stats),
+      badges: evaluateBadges(state).map((b) => b.id),
+    }
+    history.unshift(entry)
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, MAX_HISTORY)))
+  } catch { /* quota exceeded or unavailable */ }
+}
+
+// eslint-disable-next-line react-refresh/only-export-components -- utility for TitleScreen
+export function getRunHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+// eslint-disable-next-line react-refresh/only-export-components -- utility for TitleScreen
+export function clearRunHistory() {
+  try { localStorage.removeItem(HISTORY_KEY) } catch { /* ignore */ }
 }
 
 const initialState = {
@@ -141,7 +186,12 @@ function gameReducer(state, action) {
       const nextBefore = applyCareerPathNudge(state.statsBeforeFinancing, career, statMods)
       const baseNodes = state.selectedMajor?.nodes ?? []
       const overrides = branch?.nodeOverrides ?? []
-      const playthroughNodes = resolvePlaythroughNodes(baseNodes, overrides)
+      let playthroughNodes = resolvePlaythroughNodes(baseNodes, overrides)
+      if (career.relatedCareer?.title) {
+        const crossroads = buildCrossroadsNode(career.title, career.relatedCareer.title)
+        playthroughNodes.push(crossroads)
+        playthroughNodes.sort((a, b) => (a.year ?? 0) - (b.year ?? 0))
+      }
       const seedSkills = Array.isArray(branch?.skills)
         ? branch.skills.reduce((acc, name) => ({ ...acc, [name]: 0 }), {})
         : {}
@@ -238,17 +288,34 @@ function gameReducer(state, action) {
         : state.selectedMajor?.nodes ?? []
       const prevNode = state.currentNodeIndex > 0 ? playthrough[state.currentNodeIndex - 1] : null
       const yearsBetween = Math.max(1, (node.year ?? 1) - (prevNode?.year ?? 0))
-      const afterYears = applyYearsBetweenNodes(afterChoice, yearsBetween)
+      const afterYears = applyYearsBetweenNodes(afterChoice, yearsBetween, state.financingId)
       const nextIndex = state.currentNodeIndex + 1
       const totalNodes = playthrough.length
       const gameOver = isGameOver(nextIndex, totalNodes)
-      const nextSkills = applyCareerSkillDelta(state.careerSkills, option.skillDelta)
+      const branchSkills = state.careerSkills ? Object.keys(state.careerSkills) : []
+      const effectiveDelta = option.skillDelta
+        ?? (branchSkills.length > 0 ? { [branchSkills[node.year % branchSkills.length]]: 1 } : null)
+      let nextSkills = applyCareerSkillDelta(state.careerSkills, effectiveDelta)
+
+      let nextCareerPath = state.selectedCareerPath
+      let nextDataFlags = state.dataQualityFlags
+      if (option.switchCareer && state.selectedCareerPath?.relatedCareer) {
+        const related = state.selectedCareerPath.relatedCareer
+        const newBranch = careerBranches.bySoc?.[related.soc] ?? null
+        nextCareerPath = { ...related, mechanicsApplied: Boolean(newBranch) }
+        nextDataFlags = { ...nextDataFlags, career: newBranch ? 'full' : 'catalog_only' }
+        nextSkills = Array.isArray(newBranch?.skills)
+          ? newBranch.skills.reduce((acc, name) => ({ ...acc, [name]: 0 }), {})
+          : {}
+      }
 
       return {
         ...state,
         stats: afterYears,
         currentNodeIndex: nextIndex,
         scenarioText: null,
+        selectedCareerPath: nextCareerPath,
+        dataQualityFlags: nextDataFlags,
         choiceHistory: [
           ...state.choiceHistory,
           {
@@ -308,6 +375,9 @@ function persistedReducer(state, action) {
     clearSave()
   } else if (action.type !== 'TEST_BEGIN_PLAYING' && action.type !== 'SELECT_MAJOR') {
     saveState(nextState)
+  }
+  if (nextState.phase === 'game_over' && state.phase !== 'game_over') {
+    saveRunToHistory(nextState)
   }
   return nextState
 }

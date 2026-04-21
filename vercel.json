@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/usajobs/(.*)", "destination": "/api/usajobs" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}

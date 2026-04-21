@@ -160,6 +160,20 @@ Without Scorecard keys, **production static builds** need `VITE_COLLEGE_SCORECAR
 
 ---
 
+## Deploying to Vercel
+
+The project includes a Vercel serverless function (`api/usajobs.js`) that proxies USAJOBS requests in production, since browsers cannot set the `User-Agent` header that the USAJOBS API requires.
+
+1. Connect the repo to a Vercel project (framework preset: **Vite**).
+2. In **Settings → Environment Variables**, add:
+   - `USAJOBS_EMAIL` — the registered email (used as the `User-Agent` header)
+   - `USAJOBS_API_KEY` — your USAJOBS authorization key
+3. Deploy. The function handles `/api/usajobs/*` requests automatically; SPA routing falls back to `index.html` via `vercel.json`.
+
+Other API keys (`VITE_COLLEGE_SCORECARD_API_KEY`, `VITE_GOOGLE_API_KEY`, etc.) should also be set in Vercel environment variables for the production build to use them client-side.
+
+---
+
 ## Design tradeoffs (why it is built this way)
 
 - **CIP → few simulation tracks:** Authoring unique narrative trees per major does not scale. The resolver maps broad CIP families to three themed tracks plus **explorer**, so the **data** is rich while **gameplay** stays maintainable.  

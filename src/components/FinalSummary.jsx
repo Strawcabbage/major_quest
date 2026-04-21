@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useGame } from '../context/GameContext'
-import { computeNetWorth, estimateDebtPayoffMonths } from '../engine/gameEngine'
+import { computeNetWorth, estimateDebtPayoffMonths, evaluateBadges } from '../engine/gameEngine'
 import { generateCareerRetrospective } from '../services/aiService'
 import { debtToEarningsRatio, formatUsd } from '../utils/facts'
 
@@ -20,6 +20,7 @@ export default function FinalSummary() {
     outlookPreview,
     dataQualityFlags,
     careerSkills,
+    financingId,
   } = state
 
   const skillEntries = careerSkills
@@ -31,8 +32,11 @@ export default function FinalSummary() {
   const payoffMonths = estimateDebtPayoffMonths({
     debt: stats.debt,
     annualSalary: stats.salary,
+    financingId,
   })
   const dte = debtToEarningsRatio(stats.debt, stats.salary)
+
+  const badges = useMemo(() => evaluateBadges(state), [state])
 
   const [aiFailed, setAiFailed] = useState(false)
 
@@ -61,12 +65,58 @@ export default function FinalSummary() {
     return () => { cancelled = true; clearTimeout(timeout) }
   }, [retrospective, selectedMajor, stats, choiceHistory, setRetrospective])
 
+  const [copied, setCopied] = useState(false)
+
   const fmt = (n) =>
     new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       maximumFractionDigits: 0,
     }).format(n)
+
+  function buildShareText() {
+    const lines = [
+      `🎓 Major Quest — 10-Year Results`,
+      ``,
+      `${selectedMajor.emoji} ${selectedMajor.title}`,
+      playerName ? `Player: ${playerName}` : null,
+      school?.name ? `School: ${school.name}` : null,
+      selectedCareerPath?.title ? `Career: ${selectedCareerPath.title}` : null,
+      selectedCity?.label ? `Location: ${selectedCity.label}` : null,
+      ``,
+      `📊 Final Stats`,
+      `  Salary: ${fmt(stats.salary)}`,
+      `  Net Worth: ${fmt(netWorth)}`,
+      `  Happiness: ${stats.happiness}/100`,
+      `  Debt: ${fmt(stats.debt)}`,
+      ``,
+      badges.length > 0 ? `🏆 Badges: ${badges.map((b) => `${b.icon} ${b.label}`).join(', ')}` : null,
+      badges.length > 0 ? `` : null,
+      retrospective ? `💬 "${retrospective.title}"` : null,
+      retrospective ? `   ${retrospective.story}` : null,
+      ``,
+      `Play at majquest.app (data from College Scorecard + O*NET)`,
+    ]
+    return lines.filter((l) => l != null).join('\n')
+  }
+
+  async function handleShare() {
+    const text = buildShareText()
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    } catch {
+      const ta = document.createElement('textarea')
+      ta.value = text
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6 max-w-xl pixel-ui w-full">
@@ -117,6 +167,20 @@ export default function FinalSummary() {
         ))}
       </div>
 
+      {badges.length > 0 && (
+        <div className="pixel-panel p-4 space-y-2">
+          <p className="text-[8px] text-stone-500 uppercase tracking-widest">Badges earned</p>
+          <div className="flex flex-wrap gap-2">
+            {badges.map((b) => (
+              <div key={b.id} className="flex items-center gap-1.5 bg-stone-800/60 rounded px-2 py-1" title={b.desc}>
+                <span className="text-sm">{b.icon}</span>
+                <span className="text-[9px] text-amber-200 font-semibold">{b.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {skillEntries.length > 0 && (
         <div className="pixel-panel p-4 space-y-2">
           <p className="text-[8px] text-stone-500 uppercase tracking-widest">Career skills meter</p>
@@ -163,13 +227,13 @@ export default function FinalSummary() {
           <span className="text-amber-200 font-bold">{dte != null ? dte.toFixed(2) : '—'}</span>
         </p>
         <p className="text-[9px] text-stone-300 leading-relaxed">
-          Rough months to pay off debt if you steer ~10% of salary yearly to loans at 6% APR (toy model):{' '}
+          Rough months to pay off debt using IDR (10% of income above 150% FPL) at your plan's federal rate:{' '}
           <span className="text-amber-200 font-bold">
             {payoffMonths == null ? (stats.debt <= 0 ? 'Paid off' : 'Unable to estimate') : `${payoffMonths} mo (~${Math.round(payoffMonths / 12)} yr)`}
           </span>
         </p>
         <p className="text-[7px] text-stone-600 leading-snug">
-          Starting debt for this run began near {formatUsd(statsBeforeFinancing?.debt ?? stats.debt)} before financing choices; final debt includes in-game events and 6% interest between decision years.
+          Starting debt for this run began near {formatUsd(statsBeforeFinancing?.debt ?? stats.debt)} before financing choices; final debt includes in-game events, tiered federal interest, and IDR payments between decision years.
         </p>
       </div>
 
@@ -189,9 +253,14 @@ export default function FinalSummary() {
         )}
       </div>
 
-      <button type="button" onClick={restart} className="pixel-btn-primary w-full">
-        Play again
-      </button>
+      <div className="flex gap-3">
+        <button type="button" onClick={handleShare} className="pixel-btn-secondary flex-1">
+          {copied ? 'Copied!' : 'Share results'}
+        </button>
+        <button type="button" onClick={restart} className="pixel-btn-primary flex-1">
+          Play again
+        </button>
+      </div>
     </div>
   )
 }

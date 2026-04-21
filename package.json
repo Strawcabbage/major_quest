@@ -14,7 +14,8 @@
     "build:cip-soc": "node scripts/buildCipToSocCatalog.js",
     "build:cip-enrichment": "node scripts/buildCipEnrichment.js",
     "build:career-catalog": "node --env-file=.env.local scripts/buildCareerCatalog.js",
-    "build:all-data": "node scripts/buildCipToSocCatalog.js && node --env-file=.env.local scripts/buildCareerCatalog.js && node scripts/buildCipEnrichment.js"
+    "build:branches": "node scripts/buildCareerBranches.js",
+    "build:all-data": "node scripts/buildCipToSocCatalog.js && node --env-file=.env.local scripts/buildCareerCatalog.js && node scripts/buildCipEnrichment.js && node scripts/buildCareerBranches.js"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.62",
