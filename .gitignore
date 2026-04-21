@@ -24,3 +24,8 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+ROADMAP.md
+PROMPTING.md
+LINKEDIN_POST.md
+PR_DESCRIPTION.md
