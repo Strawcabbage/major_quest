@@ -1,6 +1,11 @@
 {
+  "functions": {
+    "api/usajobs.js": {
+      "memory": 128
+    }
+  },
   "rewrites": [
-    { "source": "/api/usajobs/(.*)", "destination": "/api/usajobs" },
+    { "source": "/api/usajobs/:path*", "destination": "/api/usajobs" },
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }

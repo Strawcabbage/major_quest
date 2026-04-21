@@ -1,4 +1,12 @@
 export default async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Accept')
+    res.status(204).end()
+    return
+  }
+
   const email = process.env.USAJOBS_EMAIL
   const apiKey = process.env.USAJOBS_API_KEY
 
@@ -7,9 +15,10 @@ export default async function handler(req, res) {
     return
   }
 
-  const incomingUrl = new URL(req.url, `http://${req.headers.host}`)
-  const searchParams = new URLSearchParams(incomingUrl.searchParams)
-  const target = `https://data.usajobs.gov/api/search?${searchParams.toString()}`
+  const parsed = new URL(req.url, `https://${req.headers.host}`)
+  const pathAfterPrefix = parsed.pathname.replace(/^\/api\/usajobs\/?/, '')
+  const endpoint = pathAfterPrefix || 'search'
+  const target = `https://data.usajobs.gov/api/${endpoint}?${parsed.searchParams.toString()}`
 
   try {
     const upstream = await fetch(target, {

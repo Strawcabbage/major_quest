@@ -32,7 +32,7 @@ function fallbackProgram(major) {
 
 function enrichCacheKey(school, program) {
   if (!school?.id || !program?.cipCode) return null
-  return `mq_enrich_${school.id}_${program.cipCode}_${school.state ?? ''}`
+  return `mq_enrich_v2_${school.id}_${program.cipCode}_${school.state ?? ''}`
 }
 
 function isValidCip4(cip) {
