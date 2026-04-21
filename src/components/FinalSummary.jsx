@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useGame } from '../context/GameContext'
 import { computeNetWorth, estimateDebtPayoffMonths } from '../engine/gameEngine'
 import { generateCareerRetrospective } from '../services/aiService'
@@ -34,13 +34,31 @@ export default function FinalSummary() {
   })
   const dte = debtToEarningsRatio(stats.debt, stats.salary)
 
+  const [aiFailed, setAiFailed] = useState(false)
+
   useEffect(() => {
     if (retrospective || !selectedMajor || !stats) return
+    let cancelled = false
+    const timeout = setTimeout(() => {
+      if (!cancelled && !retrospective) {
+        setAiFailed(true)
+        setRetrospective({
+          title: 'A decade in the books.',
+          story: 'Your career unfolded in ways even the data cannot fully capture. Was it worth it? Only you know.',
+        })
+      }
+    }, 15000)
     generateCareerRetrospective({
       major: selectedMajor.title,
       finalStats: stats,
       choiceHistory,
-    }).then(setRetrospective)
+    }).then((result) => {
+      if (!cancelled) {
+        clearTimeout(timeout)
+        setRetrospective(result)
+      }
+    })
+    return () => { cancelled = true; clearTimeout(timeout) }
   }, [retrospective, selectedMajor, stats, choiceHistory, setRetrospective])
 
   const fmt = (n) =>
@@ -159,6 +177,7 @@ export default function FinalSummary() {
         <p className="text-[8px] text-stone-500 uppercase tracking-widest mb-2">LinkedIn retrospective</p>
         {retrospective ? (
           <>
+            {aiFailed && <p className="text-[8px] text-stone-600 mb-2">AI unavailable — showing default text</p>}
             <p className="text-amber-50 font-semibold text-[10px] mb-2 leading-snug">{retrospective.title}</p>
             <p className="text-stone-300 text-[9px] leading-relaxed italic">"{retrospective.story}"</p>
           </>

@@ -1,6 +1,7 @@
 import fsaSchoolHints from '../data/fsaSchoolHints.json'
 
 const DEBT_INTEREST_RATE = 0.06
+const ANNUAL_SAVINGS_RATE = 0.10
 
 /** Financing packages applied after initial stats are built from Scorecard + major defaults */
 export const FINANCING_OPTIONS = [
@@ -94,6 +95,22 @@ export function applyChoice(state, impact) {
     debt: newDebt,
     happiness: newHappiness,
   }
+}
+
+/**
+ * Simulate years passing between decision nodes.
+ * Each year: accrue debt interest and save a fraction of salary to the bank.
+ * @param {object} state
+ * @param {number} years - number of years elapsed since the last decision
+ */
+export function applyYearsBetweenNodes(state, years) {
+  if (years <= 0) return { ...state }
+  let { salary, bank, debt } = state
+  for (let i = 0; i < years; i++) {
+    bank += Math.round(salary * ANNUAL_SAVINGS_RATE)
+    if (debt > 0) debt = debt * (1 + DEBT_INTEREST_RATE)
+  }
+  return { ...state, salary, bank, debt: Math.max(0, debt) }
 }
 
 /**

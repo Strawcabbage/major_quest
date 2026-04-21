@@ -1,7 +1,17 @@
-import { useGame } from '../context/GameContext'
+import { useGame, hasSavedGame } from '../context/GameContext'
 
 export default function TitleScreen() {
-  const { goPhase } = useGame()
+  const { goPhase, restart, state } = useGame()
+  const saveExists = hasSavedGame()
+
+  function handleNewGame() {
+    if (saveExists) restart()
+    goPhase('character')
+  }
+
+  function handleContinue() {
+    goPhase(state.phase !== 'title' ? state.phase : 'character')
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-full gap-10 pixel-ui text-center px-4">
@@ -16,8 +26,13 @@ export default function TitleScreen() {
       </div>
 
       <div className="flex flex-col gap-4 w-full max-w-sm">
-        <button type="button" className="pixel-btn-primary" onClick={() => goPhase('character')}>
-          Start Game
+        {saveExists && (
+          <button type="button" className="pixel-btn-primary" onClick={handleContinue}>
+            Continue
+          </button>
+        )}
+        <button type="button" className={saveExists ? 'pixel-btn-secondary' : 'pixel-btn-primary'} onClick={handleNewGame}>
+          New Game
         </button>
         <button type="button" className="pixel-btn-secondary" onClick={() => goPhase('how_to_play')}>
           How to Play

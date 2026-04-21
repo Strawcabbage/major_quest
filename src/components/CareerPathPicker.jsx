@@ -339,7 +339,7 @@ export default function CareerPathPicker() {
           })}
         </ul>
 
-        <div className="lg:col-span-3 pixel-panel p-4 space-y-3">
+        <div className="lg:col-span-3 pixel-panel p-4 space-y-3 max-h-[520px] overflow-y-auto">
           {selected ? (
             <>
               <div>

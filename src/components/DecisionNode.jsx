@@ -65,7 +65,10 @@ export default function DecisionNode() {
             <p className="text-stone-300 text-[10px] sm:text-xs leading-relaxed">{scenarioText.story}</p>
           </>
         ) : (
-          <p className="text-stone-500 italic text-xs">{node.ai_context}</p>
+          <>
+            <p className="text-[8px] text-stone-600 mb-2">AI unavailable — showing default text</p>
+            <p className="text-stone-500 italic text-xs">{node.ai_context}</p>
+          </>
         )}
       </div>
 

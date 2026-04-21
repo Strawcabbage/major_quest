@@ -51,12 +51,28 @@ export function resolveTrackForCip(cipCode) {
     return { major, trackId: 'cs_001', isGeneric: false }
   }
   if (d2 === 51) {
-    const major = majorsById.nursing_001
-    return { major, trackId: 'nursing_001', isGeneric: false }
+    const major = majorsById.health_sci_001
+    return { major, trackId: 'health_sci_001', isGeneric: false }
   }
   if (d2 === 23 || d2 === 16) {
     const major = majorsById.english_001
     return { major, trackId: 'english_001', isGeneric: false }
+  }
+  if (d2 === 52) {
+    const major = majorsById.business_001
+    return { major, trackId: 'business_001', isGeneric: false }
+  }
+  if (d2 === 14 || d2 === 15) {
+    const major = majorsById.engineering_001
+    return { major, trackId: 'engineering_001', isGeneric: false }
+  }
+  if (d2 === 13) {
+    const major = majorsById.education_001
+    return { major, trackId: 'education_001', isGeneric: false }
+  }
+  if (d2 === 50) {
+    const major = majorsById.arts_001
+    return { major, trackId: 'arts_001', isGeneric: false }
   }
 
   const major = majorsById.explorer_001

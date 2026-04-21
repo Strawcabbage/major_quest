@@ -1,7 +1,7 @@
 import { createContext, useContext, useReducer, useCallback } from 'react'
 import {
   applyChoice,
-  applyAnnualDebtInterest,
+  applyYearsBetweenNodes,
   applyFinancing,
   isGameOver,
   applyCityToStats,
@@ -15,6 +15,47 @@ import careerBranches from '../data/careerBranches.json'
 const GameContext = createContext(null)
 
 /** @typedef {'title'|'how_to_play'|'character'|'school'|'major'|'career_path'|'city'|'financing'|'five_year_outlook'|'playing'|'game_over'} GamePhase */
+
+const STORAGE_KEY = 'major_quest_save'
+
+function loadSavedState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed.phase !== 'string') return null
+    parsed.factModal = null
+    parsed.factAfterClose = null
+    parsed.scenarioText = null
+    parsed.retrospective = null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+function saveState(state) {
+  try {
+    const { factModal, factAfterClose, scenarioText, retrospective, ...rest } = state
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(rest))
+  } catch { /* quota exceeded or unavailable */ }
+}
+
+function clearSave() {
+  try { localStorage.removeItem(STORAGE_KEY) } catch { /* ignore */ }
+}
+
+// eslint-disable-next-line react-refresh/only-export-components -- utility for TitleScreen
+export function hasSavedGame() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return false
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed.phase === 'string' && parsed.phase !== 'title'
+  } catch {
+    return false
+  }
+}
 
 const initialState = {
   phase: /** @type {GamePhase} */ ('title'),
@@ -192,18 +233,20 @@ function gameReducer(state, action) {
     case 'MAKE_CHOICE': {
       const { option, node } = action
       const afterChoice = applyChoice(state.stats, option.impact)
-      const afterInterest = applyAnnualDebtInterest(afterChoice)
-      const nextIndex = state.currentNodeIndex + 1
       const playthrough = state.playthroughNodes?.length
         ? state.playthroughNodes
         : state.selectedMajor?.nodes ?? []
+      const prevNode = state.currentNodeIndex > 0 ? playthrough[state.currentNodeIndex - 1] : null
+      const yearsBetween = Math.max(1, (node.year ?? 1) - (prevNode?.year ?? 0))
+      const afterYears = applyYearsBetweenNodes(afterChoice, yearsBetween)
+      const nextIndex = state.currentNodeIndex + 1
       const totalNodes = playthrough.length
       const gameOver = isGameOver(nextIndex, totalNodes)
       const nextSkills = applyCareerSkillDelta(state.careerSkills, option.skillDelta)
 
       return {
         ...state,
-        stats: afterInterest,
+        stats: afterYears,
         currentNodeIndex: nextIndex,
         scenarioText: null,
         choiceHistory: [
@@ -259,8 +302,18 @@ function gameReducer(state, action) {
   }
 }
 
+function persistedReducer(state, action) {
+  const nextState = gameReducer(state, action)
+  if (action.type === 'RESTART') {
+    clearSave()
+  } else if (action.type !== 'TEST_BEGIN_PLAYING' && action.type !== 'SELECT_MAJOR') {
+    saveState(nextState)
+  }
+  return nextState
+}
+
 export function GameProvider({ children }) {
-  const [state, dispatch] = useReducer(gameReducer, initialState)
+  const [state, dispatch] = useReducer(persistedReducer, initialState, () => loadSavedState() ?? initialState)
 
   const goPhase = useCallback((phase) => {
     dispatch({ type: 'GO_PHASE', phase })
