@@ -21,9 +21,9 @@ function FactLine({ line, index }) {
 
   if (line.label != null) {
     return (
-      <div className="flex justify-between items-baseline gap-6 py-2.5 border-b border-stone-800/50 last:border-0">
-        <span className="text-[10px] text-stone-400 shrink-0">{line.label}</span>
-        <span className="text-[11px] font-semibold text-stone-100 text-right">{line.value}</span>
+      <div className="flex flex-wrap justify-between items-baseline gap-x-4 gap-y-1 py-2.5 border-b border-stone-800/50 last:border-0">
+        <span className="text-[10px] text-stone-400">{line.label}</span>
+        <span className="text-[11px] font-semibold text-stone-100 text-right break-words min-w-0">{line.value}</span>
       </div>
     )
   }

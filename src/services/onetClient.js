@@ -39,8 +39,7 @@ export function pickOverviewLines(data) {
   const desc =
     data.description ?? data.occupation?.description ?? data.what_they_do ?? data?.career?.what_they_do
   if (typeof desc === 'string' && desc.trim()) {
-    const short = desc.trim().slice(0, 220)
-    lines.push(short + (desc.trim().length > 220 ? '…' : ''))
+    lines.push(desc.trim())
   }
 
   const zone = data.job_zone?.title ?? data.job_zone ?? data?.career?.job_zone

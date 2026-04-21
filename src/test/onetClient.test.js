@@ -11,12 +11,11 @@ describe('pickOverviewLines', () => {
     expect(lines.some((l) => l.includes('Research'))).toBe(true)
   })
 
-  it('truncates long descriptions', () => {
+  it('preserves full descriptions without truncation', () => {
     const long = 'x'.repeat(300)
     const lines = pickOverviewLines({ title: 'T', description: long })
     const descLine = lines.find((l) => l.startsWith('x'))
-    expect(descLine.length).toBeLessThanOrEqual(221)
-    expect(descLine.endsWith('…')).toBe(true)
+    expect(descLine.length).toBe(300)
   })
 
   it('handles empty input', () => {
