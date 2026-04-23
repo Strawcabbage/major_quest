@@ -3,11 +3,17 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import { GameProvider } from './context/GameContext.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
+import { ToastProvider } from './components/Toast.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <GameProvider>
-      <App />
-    </GameProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <GameProvider>
+          <App />
+        </GameProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   </StrictMode>
 )

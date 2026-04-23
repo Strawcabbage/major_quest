@@ -8,6 +8,9 @@ import { programDataCompletenessScore } from '../services/scorecardClient'
 import { buildProgramFactLines, mergeProgramFactWithEnrichment, formatUsd } from '../utils/facts'
 import { fetchCpiSalaryStretchLine } from '../services/blsClient'
 import { fetchOnetFactLines } from '../services/onetClient'
+import { preloadCareerCatalog } from '../utils/useCareerCatalog'
+
+preloadCareerCatalog()
 
 const FALLBACK_CIP = {
   cs_001: '1101',
@@ -29,7 +32,7 @@ function fallbackProgram(major) {
 
 function enrichCacheKey(school, program) {
   if (!school?.id || !program?.cipCode) return null
-  return `mq_enrich_${school.id}_${program.cipCode}_${school.state ?? ''}`
+  return `mq_enrich_v2_${school.id}_${program.cipCode}_${school.state ?? ''}`
 }
 
 function isValidCip4(cip) {
@@ -56,8 +59,10 @@ export default function MajorPicker() {
       if (category !== 'All' && cipUiCategory(p.cipCode) !== category) return false
       if (!q) return true
       const t = (p.title || '').toLowerCase()
-      const c = String(p.cipCode).toLowerCase()
-      return t.includes(q) || c.includes(q.replace(/\D/g, ''))
+      if (t.includes(q)) return true
+      const numericQ = q.replace(/\D/g, '')
+      if (numericQ) return String(p.cipCode).includes(numericQ)
+      return false
     })
   }, [allPrograms, query, category])
 
@@ -160,9 +165,10 @@ export default function MajorPicker() {
       {allPrograms.length > 0 && (
         <div className="space-y-2">
           <input
-            type="search"
+            type="text"
             placeholder="Search title or CIP…"
-            className="w-full pixel-panel px-2 py-1.5 text-[9px] bg-stone-900 border border-stone-700 text-stone-200"
+            aria-label="Search majors"
+            className="w-full pixel-input"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

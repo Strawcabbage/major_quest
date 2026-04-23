@@ -49,12 +49,68 @@ function devDataApisPlugin(mode) {
         if (url.startsWith('/api/onet/') && req.method === 'GET') {
           try {
             const pathAfter = url.slice('/api/onet'.length)
-            const target = `https://services.onetcenter.org/api/v2${pathAfter}`
+            const target = `https://api-v2.onetcenter.org${pathAfter}`
             const onetKey = env.ONET_API_KEY || env.VITE_ONET_API_KEY
             const r = await fetch(target, {
               headers: {
                 Accept: 'application/json',
                 ...(onetKey ? { 'X-API-Key': onetKey } : {}),
+              },
+            })
+            const text = await r.text()
+            res.statusCode = r.status
+            const ct = r.headers.get('content-type')
+            if (ct) res.setHeader('Content-Type', ct)
+            res.end(text)
+          } catch (e) {
+            res.statusCode = 500
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: String(e?.message ?? e) }))
+          }
+          return
+        }
+
+        if (url.startsWith('/api/adzuna/') && req.method === 'GET') {
+          try {
+            const [pathAfter, rawQuery] = (req.url ?? '').slice('/api/adzuna'.length).split('?')
+            const params = new URLSearchParams(rawQuery ?? '')
+            const adzId = env.ADZUNA_APP_ID || env.VITE_ADZUNA_APP_ID
+            const adzKey = env.ADZUNA_APP_KEY || env.VITE_ADZUNA_APP_KEY
+            if (adzId) params.set('app_id', adzId)
+            if (adzKey) params.set('app_key', adzKey)
+            const target = `https://api.adzuna.com/v1/api${pathAfter}?${params.toString()}`
+            const r = await fetch(target, { headers: { Accept: 'application/json' } })
+            const text = await r.text()
+            res.statusCode = r.status
+            const ct = r.headers.get('content-type')
+            if (ct) res.setHeader('Content-Type', ct)
+            res.end(text)
+          } catch (e) {
+            res.statusCode = 500
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ error: String(e?.message ?? e) }))
+          }
+          return
+        }
+
+        if (url.startsWith('/api/usajobs/') && req.method === 'GET') {
+          try {
+            const pathAfter = (req.url ?? '').slice('/api/usajobs'.length)
+            const target = `https://data.usajobs.gov/api${pathAfter}`
+            const usaEmail = env.USAJOBS_EMAIL || env.VITE_USAJOBS_EMAIL
+            const usaKey = env.USAJOBS_API_KEY || env.VITE_USAJOBS_API_KEY
+            if (!usaEmail || !usaKey) {
+              res.statusCode = 503
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({ error: 'USAJOBS_EMAIL / USAJOBS_API_KEY missing in env' }))
+              return
+            }
+            const r = await fetch(target, {
+              headers: {
+                Accept: 'application/json',
+                Host: 'data.usajobs.gov',
+                'User-Agent': usaEmail,
+                'Authorization-Key': usaKey,
               },
             })
             const text = await r.text()

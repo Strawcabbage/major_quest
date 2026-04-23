@@ -76,6 +76,7 @@ export default function SchoolPicker() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search by school name…"
+        aria-label="Search schools"
         className="pixel-input w-full"
       />
 
